@@ -19,7 +19,7 @@ double seglen, seglen2;
 double yintersect = HEIGHT;
 double xintersect = WIDTH;
 int ix0, iy0, ix1, iy1;
-inode nextnode{ WIDTH, HEIGHT, LEFT }; // WIDYJ, HEIGHT values are assigned in flattenham_win.h
+inode nextnode{ WIDTH, HEIGHT, LEFT }; // WIDTH, HEIGHT values are assigned in flattenham_win.h
 vec linevec{};
 bool intersectfound = false;
 std::vector<POINT> vertices;
