@@ -3,76 +3,17 @@
 
 #include <iostream>
 #include "display.h"
-#include "initial_conditions.h"
-
-constexpr int WIDTH = 32;
-constexpr int HEIGHT = 32;
-
-/*struct vec
-{
-    double x; double y;
-    vec operator+(vec other)
-    {
-        return { x + other.x, y + other.y };
-    }
-    vec operator-(vec other)
-    {
-        return { x - other.x, y - other.y };
-    }
-    vec operator*(double z)
-    {
-        return { x * z, y * z };
-    }
-    vec operator/(double z)
-    {
-        return { x / z, y / z };
-    }
-    vec operator=(vec other)
-    {
-        return { other.x, other.y };
-    }
-    bool isnan()
-    {
-        return (std::isnan(x) || std::isnan(y));
-    }
-};*/
-
-vec fld[WIDTH * HEIGHT]{};
-uint8_t fldtrait[WIDTH * HEIGHT]{};
-
-void setPixel(int x, int y, vec displacement)
-{
-    if ((fld[x + y * WIDTH]).isnan())
-    {
-        fld[x + y * WIDTH] = displacement;
-    }
-}
-
-vec getPixel(int x, int y)
-{
-    return fld[x + y * WIDTH];
-}
-
-void iterateStencil(int ix, int iy)
-{
-    vec mindist = { sqrt((double)(WIDTH * WIDTH + HEIGHT * HEIGHT)), sqrt((double)(WIDTH * WIDTH + HEIGHT * HEIGHT)) };
-    if (!(getPixel(ix - 1, iy)).isnan())
-        mindist = getPixel(ix - 1, iy);
-    else if (!(getPixel(ix + 1, iy)).isnan())
-        mindist = getPixel(ix + 1, iy);
-    else if (!(getPixel(ix, iy - 1)).isnan())
-        mindist = getPixel(ix, iy - 1);
-    else if (!(getPixel(ix, iy + 1)).isnan())
-        mindist = getPixel(ix, iy + 1);
-
-    if (!(mindist.isnan()))
-        setPixel(ix, iy, mindist);
-}
+#include "fmmDDA.h"
 
 int main()
 {
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
-    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = { nan, nan };
+    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) 
+    {
+        fld[ix].x = nan;
+        fld[ix].y = nan;
+        fldY[ix] = nan;
+    };
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fldtrait[ix] = 0;
 
     init(WIDTH, HEIGHT, fld);
@@ -84,6 +25,24 @@ int main()
             iterateStencil(ix, iy);
         }
     }
+    /*for (int ix = 1; ix < WIDTH; ++ix)
+    {
+        for (int iy = 1; iy < HEIGHT; ++iy)
+        {
+            iterateStencil(ix, iy);
+        }
+    }*/
 
-    //display(WIDTH, HEIGHT, fld);
+    // (fld[ix + iy * WIDTH].x > 0.0 || fld[ix + iy * WIDTH].y > 0.0 ) is Ok, but is it a truly right condition?
+    for (int iy = 1; iy < HEIGHT; ++iy)
+    {
+        for (int ix = 1; ix < WIDTH; ++ix)
+        {
+            if (!fld[ix + iy * WIDTH].isnan())
+            fldY[ix + iy * WIDTH] = sqrt(fld[ix + iy * WIDTH].x * fld[ix + iy * WIDTH].x + fld[ix + iy * WIDTH].y * fld[ix + iy * WIDTH].y) *
+                (fld[ix + iy * WIDTH].x > 0.0 || fld[ix + iy * WIDTH].y > 0.0 )?1.0:-1.0;
+        }
+    }
+
+    display(WIDTH, HEIGHT, fldY);
 }

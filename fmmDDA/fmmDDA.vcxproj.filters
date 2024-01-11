@@ -23,7 +23,7 @@
     <ClInclude Include="display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="initial_conditions.h">
+    <ClInclude Include="fmmDDA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
