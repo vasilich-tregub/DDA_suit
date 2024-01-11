@@ -8,36 +8,71 @@
 constexpr int WIDTH = 32;
 constexpr int HEIGHT = 32;
 
-double fld[WIDTH * HEIGHT]{};
+/*struct vec
+{
+    double x; double y;
+    vec operator+(vec other)
+    {
+        return { x + other.x, y + other.y };
+    }
+    vec operator-(vec other)
+    {
+        return { x - other.x, y - other.y };
+    }
+    vec operator*(double z)
+    {
+        return { x * z, y * z };
+    }
+    vec operator/(double z)
+    {
+        return { x / z, y / z };
+    }
+    vec operator=(vec other)
+    {
+        return { other.x, other.y };
+    }
+    bool isnan()
+    {
+        return (std::isnan(x) || std::isnan(y));
+    }
+};*/
+
+vec fld[WIDTH * HEIGHT]{};
 uint8_t fldtrait[WIDTH * HEIGHT]{};
 
-void setPixel(int x, int y, double Y = 0, uint8_t trait = 0)
+void setPixel(int x, int y, vec displacement)
 {
-    double Yfld = fld[x + y * WIDTH];
-    uint8_t traitfld = fldtrait[x + y * WIDTH];
-    if (Y != 0 && Y + Yfld == 0)
+    if ((fld[x + y * WIDTH]).isnan())
     {
-        fld[x + y * WIDTH] = std::numeric_limits<double>::quiet_NaN();
-        fldtrait[x + y * WIDTH] = 0;
-        return;
-    }
-    if (std::isnan(fld[x + y * WIDTH]) || (trait < fldtrait[x + y * WIDTH]) ||
-        ((trait == fldtrait[x + y * WIDTH]) && (abs(Y) < abs(fld[x + y * WIDTH]))))
-    {
-        fld[x + y * WIDTH] = Y;
-        fldtrait[x + y * WIDTH] = trait;
+        fld[x + y * WIDTH] = displacement;
     }
 }
 
-double getPixel(int x, int y)
+vec getPixel(int x, int y)
 {
     return fld[x + y * WIDTH];
+}
+
+void iterateStencil(int ix, int iy)
+{
+    vec mindist = { sqrt((double)(WIDTH * WIDTH + HEIGHT * HEIGHT)), sqrt((double)(WIDTH * WIDTH + HEIGHT * HEIGHT)) };
+    if (!(getPixel(ix - 1, iy)).isnan())
+        mindist = getPixel(ix - 1, iy);
+    else if (!(getPixel(ix + 1, iy)).isnan())
+        mindist = getPixel(ix + 1, iy);
+    else if (!(getPixel(ix, iy - 1)).isnan())
+        mindist = getPixel(ix, iy - 1);
+    else if (!(getPixel(ix, iy + 1)).isnan())
+        mindist = getPixel(ix, iy + 1);
+
+    if (!(mindist.isnan()))
+        setPixel(ix, iy, mindist);
 }
 
 int main()
 {
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
-    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = nan;
+    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = { nan, nan };
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fldtrait[ix] = 0;
 
     init(WIDTH, HEIGHT, fld);
@@ -46,10 +81,9 @@ int main()
     {
         for (int ix = 1; ix < WIDTH; ++ix)
         {
-            if (!std::isnan(getPixel(ix+1, iy)))
-                setPixel(ix, iy, getPixel(ix+1, iy));
+            iterateStencil(ix, iy);
         }
     }
 
-    display(WIDTH, HEIGHT, fld);
+    //display(WIDTH, HEIGHT, fld);
 }
