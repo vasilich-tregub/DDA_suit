@@ -4,6 +4,11 @@
 constexpr int WIDTH = 32;
 constexpr int HEIGHT = 32;
 
+enum pxltrait
+{
+    FARNODE, NARROWBAND, ACCEPTED, FIXED
+};
+
 struct vec
 {
     double x; double y;
