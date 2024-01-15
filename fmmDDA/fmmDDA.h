@@ -4,11 +4,6 @@
 constexpr int WIDTH = 32;
 constexpr int HEIGHT = 32;
 
-enum pxltrait
-{
-    FARNODE, NARROWBAND, ACCEPTED, FIXED
-};
-
 struct vec
 {
     double x; double y;
@@ -45,9 +40,13 @@ uint8_t fldtrait[WIDTH * HEIGHT]{};
 
 void setPixel(int x, int y, vec displacement)
 {
-    if ((fld[x + y * WIDTH]).isnan())
+    if (std::isnan(fld[x + y * WIDTH].x))
     {
-        fld[x + y * WIDTH] = displacement;
+        fld[x + y * WIDTH].x = displacement.x;
+    }
+    if (std::isnan(fld[x + y * WIDTH].y))
+    {
+        fld[x + y * WIDTH].y = displacement.y;
     }
 }
 

@@ -25,13 +25,13 @@ int main()
             iterateStencil(ix, iy);
         }
     }
-    /*for (int ix = 1; ix < WIDTH; ++ix)
+    for (int ix = 1; ix < WIDTH; ++ix)
     {
         for (int iy = 1; iy < HEIGHT; ++iy)
         {
             iterateStencil(ix, iy);
         }
-    }*/
+    }
 
     // (fld[ix + iy * WIDTH].x > 0.0 || fld[ix + iy * WIDTH].y > 0.0 ) is Ok, but is it a truly right condition?
     for (int iy = 1; iy < HEIGHT; ++iy)
