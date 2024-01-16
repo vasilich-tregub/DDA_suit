@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glyphrunBC", "glyphrunBC\gl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fmmDDA", "fmmDDA\fmmDDA.vcxproj", "{3533C757-DAD4-4692-AB4A-CF151A6CD1C1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fmm1D", "fmm1D\fmm1D.vcxproj", "{6EB3A847-9037-4F46-B677-71D60E357AC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{3533C757-DAD4-4692-AB4A-CF151A6CD1C1}.Release|x64.Build.0 = Release|x64
 		{3533C757-DAD4-4692-AB4A-CF151A6CD1C1}.Release|x86.ActiveCfg = Release|Win32
 		{3533C757-DAD4-4692-AB4A-CF151A6CD1C1}.Release|x86.Build.0 = Release|Win32
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Debug|x64.ActiveCfg = Debug|x64
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Debug|x64.Build.0 = Debug|x64
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Debug|x86.ActiveCfg = Debug|Win32
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Debug|x86.Build.0 = Debug|Win32
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Release|x64.ActiveCfg = Release|x64
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Release|x64.Build.0 = Release|x64
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Release|x86.ActiveCfg = Release|Win32
+		{6EB3A847-9037-4F46-B677-71D60E357AC0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
