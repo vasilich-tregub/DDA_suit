@@ -1,11 +1,4 @@
-// fmm1D.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-#include <iostream>
-#include <format>
-#include <fstream>
-
-const char* HTMLheader = R"(<HTML>
+<HTML>
 <HEAD>
 <META NAME="GENERATOR" Content="Microsoft Visual Studio">
 <TITLE></TITLE>
@@ -27,22 +20,23 @@ const char* HTMLheader = R"(<HTML>
 </HEAD>
 <BODY>
     <div class="box">
-)";
-const char* HTMLfooter = R"(
+<div>4</div>
+<div>3.5</div>
+<div>3</div>
+<div>2.5</div>
+<div>2</div>
+<div>1.5</div>
+<div>1</div>
+<div>0.5</div>
+<div>0</div>
+<div>-0.5</div>
+<div>-1</div>
+<div>-1.5</div>
+<div>-2</div>
+<div>-2.5</div>
+<div>-3</div>
+<div>-3.5</div>
+
     </div>
 </BODY>
 </HTML>
-)";
-
-int main()
-{
-    std::string html = HTMLheader;
-    for (int i = 0; i < 16; ++i)
-    {
-        html.append(std::format("<div>{}</div>\n", 0.5 * (8 - i)));
-    }
-    html.append(HTMLfooter);
-    std::ofstream outf("page.html");
-    outf << html;
-    outf.close();
-}

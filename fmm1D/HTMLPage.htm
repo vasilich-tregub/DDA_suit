@@ -4,8 +4,17 @@
 <TITLE></TITLE>
     <style>
         .box {
-            display: flex;
-            justify-content: space-between;
+            display: table;
+        }
+        .box > div {
+            display: table-cell;
+            width: 64px;
+            height: 64px;
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid black;
         }
     </style>
 </HEAD>
@@ -16,7 +25,5 @@
         <div>0</div>
         <div>0</div>
     </div>
-
-
 </BODY>
 </HTML>
