@@ -1,10 +1,11 @@
-// fmm1D.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// sdf1D.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include <iostream>
+#include <iostream>
 #include <format>
 #include <fstream>
-#include "fmm1D.h"
+#include "sdf1D.h"
 
 const int WIDTH = 32;
 double fld[WIDTH];

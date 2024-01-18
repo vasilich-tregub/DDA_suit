@@ -15,15 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="fmm1D.cpp">
+    <ClCompile Include="sdf1D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HTMLPage.htm" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="fmm1D.h">
+    <ClInclude Include="sdf1D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
