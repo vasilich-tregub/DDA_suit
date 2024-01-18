@@ -22,4 +22,9 @@
   <ItemGroup>
     <None Include="HTMLPage.htm" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fmm1D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

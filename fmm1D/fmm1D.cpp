@@ -4,42 +4,34 @@
 #include <iostream>
 #include <format>
 #include <fstream>
+#include "fmm1D.h"
 
-const char* HTMLheader = R"(<HTML>
-<HEAD>
-<META NAME="GENERATOR" Content="Microsoft Visual Studio">
-<TITLE></TITLE>
-    <style>
-        .box {
-            display: table;
-        }
-        .box > div {
-            display: table-cell;
-            width: 64px;
-            height: 64px;
-            box-sizing: border-box;
-            padding: 10px;
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid black;
-        }
-    </style>
-</HEAD>
-<BODY>
-    <div class="box">
-)";
-const char* HTMLfooter = R"(
-    </div>
-</BODY>
-</HTML>
-)";
+const int WIDTH = 32;
+double fld[WIDTH];
 
 int main()
 {
-    std::string html = HTMLheader;
-    for (int i = 0; i < 16; ++i)
+    constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+    for (int i = 0; i < WIDTH; ++i)
     {
-        html.append(std::format("<div>{}</div>\n", 0.5 * (8 - i)));
+        fld[i] = nan;
+    }
+    fld[WIDTH / 2] = 0.3333;
+    fld[WIDTH / 2] = -0.6667;
+    for (int i = 1; i < WIDTH; ++i)
+    {
+        if (std::isnan(fld[i]) && !std::isnan(fld[i - 1]))
+            fld[i] = fld[i - 1] - 1.0;
+    }
+    for (int i = WIDTH - 2; i >= 0; --i)
+    {
+        if (std::isnan(fld[i]) && !std::isnan(fld[i + 1]))
+            fld[i] = fld[i + 1] + 1.0;
+    }
+    std::string html = HTMLheader;
+    for (int i = 0; i < WIDTH; ++i)
+    {
+        html.append(std::format("<div title=\"{}\">{:.3f}</div>\n", fld[i], fld[i]));
     }
     html.append(HTMLfooter);
     std::ofstream outf("page.html");
