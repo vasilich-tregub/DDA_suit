@@ -14,7 +14,7 @@ int trait[WIDTH];
 
 enum traits
 {
-    VAR, SET, FIXED
+    VOID, SOWN, SET, FIXED
 };
 
 struct D1_IC
@@ -33,7 +33,7 @@ int main()
     for (int i = 0; i < WIDTH; ++i)
     {
         fld[i] = 0;
-        trait[i] = VAR;
+        trait[i] = VOID;
     }
     for (const auto& ic : ics)
     {
@@ -54,18 +54,18 @@ int main()
     trait[WIDTH / 2] = FIXED;*/
     for (int i = 1; i < WIDTH; ++i)
     {
-        if (trait[i] == VAR && trait[i - 1] != VAR)
+        if (trait[i] == VOID && trait[i - 1] != VOID)
         {
             fld[i] = fld[i - 1] + (fld[i - 1] > 0 ? 1.0 : -1.0); // replace '1.0' with a value inferred from ic.dir for this range
-            trait[i] = SET;
+            trait[i] = SOWN;
         }
     }
     for (int i = WIDTH - 2; i >= 0; --i)
     {
-        if (trait[i] == VAR && trait[i + 1] != VAR)
+        if (trait[i] == VOID && trait[i + 1] != VOID)
         {
             fld[i] = fld[i + 1] + (fld[i + 1] > 0 ? 1.0 : -1.0); // replace '1.0' with a value inferred from ic.dir for this range
-            trait[i] = SET;
+            trait[i] = SOWN;
         }
         else if (fld[i + 1] < 0.0 && abs(fld[i]) >= abs(fld[i + 1]) + 1.0)
             fld[i] = fld[i + 1] + (fld[i + 1] > 0 ? 1.0 : -1.0);
