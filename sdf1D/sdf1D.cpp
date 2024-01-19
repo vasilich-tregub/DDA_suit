@@ -5,6 +5,7 @@
 #include <iostream>
 #include <format>
 #include <fstream>
+#include <vector>
 #include "sdf1D.h"
 
 const int WIDTH = 32;
@@ -16,22 +17,43 @@ enum traits
     VAR, SET, FIXED
 };
 
+struct D1_IC
+{
+    double left;
+    double right;
+    double dir;
+};
+
 int main()
 {
+    std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0}};
     for (int i = 0; i < WIDTH; ++i)
     {
         fld[i] = 0;
         trait[i] = VAR;
     }
-    fld[WIDTH / 2 - 1] = 0.3333;
+    for (const auto& ic : ics)
+    {
+        int ix = (int)std::floor(ic.left);
+        fld[ix] = ic.left - (double)ix;
+        trait[ix] = FIXED;
+        fld[ix + 1] = fld[ix] - ic.dir;
+        trait[ix + 1] = FIXED;
+        ix = (int)std::floor(ic.right);
+        fld[ix] = ic.right - (double)ix;
+        trait[ix] = FIXED;
+        fld[ix + 1] = fld[ix] + ic.dir;
+        trait[ix + 1] = FIXED;
+    }
+    /*fld[WIDTH / 2 - 1] = 0.3333;
     trait[WIDTH / 2 - 1] = FIXED;
     fld[WIDTH / 2] = -0.6667;
-    trait[WIDTH / 2] = FIXED;
+    trait[WIDTH / 2] = FIXED;*/
     for (int i = 1; i < WIDTH; ++i)
     {
         if (trait[i] == VAR && trait[i - 1] != VAR)
         {
-            fld[i] = fld[i - 1] - 1.0;
+            fld[i] = fld[i - 1] - 1.0; // replace '1.0' with ic.dir for this range
             trait[i] = SET;
         }
     }
@@ -39,7 +61,7 @@ int main()
     {
         if (trait[i] == VAR && trait[i + 1] != VAR)
         {
-            fld[i] = fld[i + 1] + 1.0;
+            fld[i] = fld[i + 1] + 1.0; // replace '1.0' with ic.dir for this range
             trait[i] = SET;
         }
     }
