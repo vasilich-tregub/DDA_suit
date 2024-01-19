@@ -26,9 +26,10 @@ struct D1_IC
 
 int main()
 {
-    std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {13.5, 21.5, 1.0} };
+    //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {13.5, 21.5, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0} };
-    //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0} };
+    //std::vector<D1_IC> ics{ {5.5, 13.5, 1.0}, {21.5, 27.5, 1.0} };
+    std::vector<D1_IC> ics{ {5.5, 26.5, 1.0} };
     for (int i = 0; i < WIDTH; ++i)
     {
         fld[i] = 0;
@@ -51,11 +52,11 @@ int main()
     trait[WIDTH / 2 - 1] = FIXED;
     fld[WIDTH / 2] = -0.6667;
     trait[WIDTH / 2] = FIXED;*/
-    /*for (int i = 1; i < WIDTH; ++i)
+    for (int i = 1; i < WIDTH; ++i)
     {
         if (trait[i] == VAR && trait[i - 1] != VAR)
         {
-            fld[i] = fld[i - 1] - 1.0; // replace '1.0' with a value inferred from ic.dir for this range
+            fld[i] = fld[i - 1] + (fld[i - 1] > 0 ? 1.0 : -1.0); // replace '1.0' with a value inferred from ic.dir for this range
             trait[i] = SET;
         }
     }
@@ -63,10 +64,12 @@ int main()
     {
         if (trait[i] == VAR && trait[i + 1] != VAR)
         {
-            fld[i] = fld[i + 1] + 1.0; // replace '1.0' with a value inferred from ic.dir for this range
+            fld[i] = fld[i + 1] + (fld[i + 1] > 0 ? 1.0 : -1.0); // replace '1.0' with a value inferred from ic.dir for this range
             trait[i] = SET;
         }
-    }*/
+        else if (fld[i + 1] < 0.0 && abs(fld[i]) >= abs(fld[i + 1]) + 1.0)
+            fld[i] = fld[i + 1] + (fld[i + 1] > 0 ? 1.0 : -1.0);
+    }
     std::string html = HTMLheader;
     for (int i = 0; i < WIDTH; ++i)
     {
