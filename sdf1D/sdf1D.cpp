@@ -53,7 +53,7 @@ int main()
     {
         if (trait[i] == VAR && trait[i - 1] != VAR)
         {
-            fld[i] = fld[i - 1] - 1.0; // replace '1.0' with ic.dir for this range
+            fld[i] = fld[i - 1] - 1.0; // replace '1.0' with a value inferred from ic.dir for this range
             trait[i] = SET;
         }
     }
@@ -61,7 +61,7 @@ int main()
     {
         if (trait[i] == VAR && trait[i + 1] != VAR)
         {
-            fld[i] = fld[i + 1] + 1.0; // replace '1.0' with ic.dir for this range
+            fld[i] = fld[i + 1] + 1.0; // replace '1.0' with a value inferred from ic.dir for this range
             trait[i] = SET;
         }
     }
