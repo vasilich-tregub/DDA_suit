@@ -26,8 +26,12 @@ struct D1_IC
 
 int main()
 {
-    std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {13.5, 21.5, 1.0} };
-    //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0} };
+    // when ic.left and ic.right within the same pixel, do not flip fld sign at borders
+    //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {16.25, 16.75, 1.0} };
+    //std::vector<D1_IC> ics{ {5.5, 21.5, 1.0}, {24.25, 24.75, 0.0} };
+    // verify SDFs with IC's arbitrarary fractions
+    //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {13.5, 21.5, 1.0} };
+    std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0} };
     //std::vector<D1_IC> ics{ {5.5, 13.5, 1.0}, {21.5, 27.5, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0} };
     for (int i = 0; i < WIDTH; ++i)
@@ -48,10 +52,6 @@ int main()
         fld[ix + 1] = fld[ix] + ic.dir;
         trait[ix + 1] = FIXED;
     }
-    /*fld[WIDTH / 2 - 1] = 0.3333;
-    trait[WIDTH / 2 - 1] = FIXED;
-    fld[WIDTH / 2] = -0.6667;
-    trait[WIDTH / 2] = FIXED;*/
     for (int i = 1; i < WIDTH; ++i)
     {
         if (trait[i] == VOID && trait[i - 1] != VOID)
