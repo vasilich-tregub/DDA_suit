@@ -29,7 +29,10 @@ int main()
     // when ic.left and ic.right within the same pixel, do not flip fld sign at borders
     //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {16.25, 16.75, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 21.5, 1.0}, {24.25, 24.75, 0.0} };
-    std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {9.25, 24.75, -1.0}, {13.125, 20.875, 1.0} };
+    //std::vector<D1_IC> ics{ {16.25, 16.75, 0.0} };
+    // process a border with endpoinds lying in the same pixel
+    std::vector<D1_IC> ics{ {5.5, 15.5, 1.0}, {21.25, 21.75, 1.0} };
+    //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {9.25, 24.75, -1.0}, {13.125, 20.875, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0} };
     //std::vector<D1_IC> ics{ {5.5, 13.5, 1.0}, {21.5, 27.5, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0} };
@@ -74,7 +77,7 @@ int main()
     std::string html = HTMLheader;
     for (int i = 0; i < WIDTH; ++i)
     {
-        html.append(std::format("<div title=\"{}\">{:.3f}</div>\n", fld[i], fld[i]));
+        html.append(std::format("<div title=\"{}\">{:.3f}</div>\n", /*fld[i]*/i, fld[i]));
     }
     html.append(HTMLfooter);
     std::ofstream outf("sdfNumerical.html");
