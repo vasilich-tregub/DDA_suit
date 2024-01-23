@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include "sdf1D.h"
+#include <cassert>
 
 const int WIDTH = 32;
 double fld[WIDTH];
@@ -26,12 +27,15 @@ struct D1_IC
 
 int main()
 {
-    // when ic.left and ic.right within the same pixel, do not flip fld sign at borders
-    //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {16.25, 16.75, 1.0} };
-    //std::vector<D1_IC> ics{ {5.5, 21.5, 1.0}, {24.25, 24.75, 0.0} };
-    //std::vector<D1_IC> ics{ {16.25, 16.75, 0.0} };
+    // when ic.left and ic.right within the same pixel, ic.left/right positions control 'distance' at borders 
+    std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {6.25, 25.75, -1.0}, {16.25, 16.75, 1.0} };
+    //std::vector<D1_IC> ics{ {5.5, 21.5, 1.0}, {24.25, 24.75, 1.0} };
+    // process a border with endpoinds lying in the adjacent pixels
+    //std::vector<D1_IC> ics{ {5.5, 15.5, 1.0}, {21.25, 21.75, 1.0}, {22.25, 22.75, 1.0} };
     // process a border with endpoinds lying in the same pixel
-    std::vector<D1_IC> ics{ {5.5, 15.5, 1.0}, {21.25, 21.75, 1.0} };
+    //std::vector<D1_IC> ics{ {16.999, 16.999, -1.0} };
+    //std::vector<D1_IC> ics{ {5.5, 15.5, 1.0}, {21.25, 21.75, 1.0} };
+    // non-adjacent, non-overlapping borders
     //std::vector<D1_IC> ics{ {3.33, 29.67, 1.0}, {9.25, 24.75, -1.0}, {13.125, 20.875, 1.0} };
     //std::vector<D1_IC> ics{ {5.5, 26.5, 1.0},  {11.5, 21.5, -1.0} };
     //std::vector<D1_IC> ics{ {5.5, 13.5, 1.0}, {21.5, 27.5, 1.0} };
@@ -43,16 +47,39 @@ int main()
     }
     for (const auto& ic : ics)
     {
-        int ix = (int)std::floor(ic.left);
-        fld[ix] = ic.dir * (ic.left - (double)ix);
-        trait[ix] = FIXED;
-        fld[ix + 1] = fld[ix] - ic.dir;
-        trait[ix + 1] = FIXED;
-        ix = (int)std::floor(ic.right);
-        fld[ix] = ic.dir * ((double)ix - ic.right);
-        trait[ix] = FIXED;
-        fld[ix + 1] = fld[ix] + ic.dir;
-        trait[ix + 1] = FIXED;
+        assert(ic.left <= ic.right);
+        int ixl = (int)std::floor(ic.left);
+        int ixr = (int)std::floor(ic.right);
+        if (ixl < ixr - 1)
+        {
+            fld[ixl] = ic.dir * (ic.left - (double)ixl);
+            trait[ixl] = FIXED;
+            fld[ixl + 1] = fld[ixl] - ic.dir;
+            trait[ixl + 1] = FIXED;
+            fld[ixr] = ic.dir * ((double)ixr - ic.right);
+            trait[ixr] = FIXED;
+            fld[ixr + 1] = fld[ixr] + ic.dir;
+            trait[ixr + 1] = FIXED;
+        }
+        else if (ixl == ixr - 1)
+        {
+            fld[ixl] = ic.dir * (ic.left - (double)ixl);
+            trait[ixl] = FIXED;
+            double fldmidleft = fld[ixl] - ic.dir;
+            double fldmidright = ic.dir * ((double)ixr - ic.right);
+            fld[ixl + 1] = 0.5 * (fldmidleft + fldmidright);
+            trait[ixl + 1] = FIXED;
+            fld[ixr + 1] = fldmidright + ic.dir;
+            trait[ixr + 1] = FIXED;
+        }
+        else
+        {
+            fld[ixl] = ic.dir * (ic.left - (double)ixl);
+            trait[ixl] = FIXED;
+            double fldright = ic.dir * ((double)ixr - ic.right);
+            fld[ixr + 1] = fldright + ic.dir;
+            trait[ixr + 1] = FIXED;
+        }
     }
     for (int i = 1; i < WIDTH; ++i)
     {
