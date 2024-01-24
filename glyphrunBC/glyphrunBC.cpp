@@ -465,5 +465,22 @@ int main()
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
-    display(WIDTH, HEIGHT, fld);
+    display(WIDTH, HEIGHT, fld, L"glyphrunBC.png");
+    double fldvalsign = 1.0;
+    for (int Y = 0; Y < HEIGHT; ++Y)
+    {
+        for (int X = 0; X < WIDTH; ++X)
+        {
+            int iX = Y * WIDTH + X;
+            if (!std::isnan(fld[iX]) && fld[iX] * fldvalsign <= 0)
+            {
+                fldvalsign = -fldvalsign;
+            }
+            if (std::isnan(fld[iX]))
+            {
+                fld[iX] = fldvalsign;
+            }
+        }
+    }
+    display(WIDTH, HEIGHT, fld, L"glyphrunBC-filled.png");
 }
