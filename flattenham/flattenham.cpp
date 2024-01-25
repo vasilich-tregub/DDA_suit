@@ -4,27 +4,22 @@
 #include <iostream>
 #include "display.h"
 
-constexpr int WIDTH = 160;
-constexpr int HEIGHT = 160;
+constexpr int WIDTH = 8;
+constexpr int HEIGHT = 8;
 
 double fld[WIDTH * HEIGHT]{};
-uint8_t fldtrait[WIDTH * HEIGHT]{};
 
-void setPixel(int x, int y, double Y = 0, uint8_t trait = 0)
+void setPixel(int x, int y, double Y = 0)
 {
     double Yfld = fld[x + y * WIDTH];
-    uint8_t traitfld = fldtrait[x + y * WIDTH];
     if (Y != 0 && Y + Yfld == 0)
     {
         fld[x + y * WIDTH] = std::numeric_limits<double>::quiet_NaN();
-        fldtrait[x + y * WIDTH] = 0;
         return;
     }
-    if (std::isnan(fld[x + y * WIDTH]) || (trait < fldtrait[x + y * WIDTH]) ||
-        ((trait == fldtrait[x + y * WIDTH]) && (abs(Y) < abs(fld[x + y * WIDTH]))))
+    if (std::isnan(fld[x + y * WIDTH]) || (abs(Y) < abs(fld[x + y * WIDTH])))
     {
         fld[x + y * WIDTH] = Y;
-        fldtrait[x + y * WIDTH] = trait;
     }
 }
 
@@ -70,7 +65,6 @@ void boundaryLine(double x0, double y0, double x1, double y1)
     for (int j = 0; j < 2; ++j)
         for (int i = 0; i < 2; ++i)
         {
-            uint8_t trait = 0;
             //std::cout << i << j << std::endl;
             vec nv0{ (ix0 + i - x0), (iy0 + j - y0) }; // 2D vector from {ix0 + i, iy0 + j} to {x0,y0}
             // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
@@ -89,16 +83,14 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 d2l = copysign(
                     sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
                     d2l);
-                //trait = 1;
             }
             //std::cout << "d2ep0: " << d2l << std::endl;
-            setPixel(ix0 + i, iy0 + j, d2l, trait);
+            setPixel(ix0 + i, iy0 + j, d2l);
         }
     // 2nd endpoint
     for (int j = 0; j < 2; ++j)
         for (int i = 0; i < 2; ++i)
         {
-            uint8_t trait = 0;
             //std::cout << i << j << std::endl;
             vec nv1{ (ix1 + i - x1), (iy1 + j - y1) }; // 2D vector from {ix1 + i, iy1 + j} to {x1,y1}
             // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
@@ -116,7 +108,6 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 d2l = copysign(
                     sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
                     d2l);
-                //trait = 1;
             }
             //std::cout << "d2ep0: " << d2l << std::endl;
             setPixel(ix1 + i, iy1 + j, d2l);
@@ -337,7 +328,6 @@ int main()
 {
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = nan;
-    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fldtrait[ix] = 0;
 
     //boundaryLine(20.25, 10.25, 15.25, 15.25);
     //boundaryLine(5.25, 15.25, 10.25, 10.25);
@@ -367,7 +357,37 @@ int main()
     boundaryLine(WIDTH / 2., 8 * HEIGHT / 9., WIDTH / 9., HEIGHT / 2.);
     boundaryLine(WIDTH / 9., HEIGHT / 2., WIDTH / 2., HEIGHT / 9.);*/
 
-    boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
+    //boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
 
-    display(WIDTH, HEIGHT, fld);
+    double w = WIDTH, h = HEIGHT;
+    /*boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+    boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
+    boundaryLine(5 * w / 8, 2 * h / 8, 5 * w / 8, 6 * h / 8);
+    boundaryLine(5 * w / 8, 6 * h / 8, 4 * w / 8, 3 * h / 8);
+    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);*/
+
+    //boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
+    boundaryLine(5 * w / 8, 2 * h / 8, 4 * w / 8/* - 0.00001*/, 6 * h / 8);
+    boundaryLine(4 * w / 8/* - 0.00001*/, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+
+    display(WIDTH, HEIGHT, fld, L"flattenham.png");
+
+    double fldvalsign = 1.0; // sqrt(2);
+    for (int Y = 0; Y < HEIGHT; ++Y)
+    {
+        for (int X = 0; X < WIDTH; ++X)
+        {
+            int iX = Y * WIDTH + X;
+            if (!std::isnan(fld[iX]) && fld[iX] * fldvalsign <= 0) // test for sign flip only
+            {
+                fldvalsign = -fldvalsign;
+            }
+            if (std::isnan(fld[iX]))
+            {
+                fld[iX] = fldvalsign;
+            }
+        }
+        fldvalsign = 1.0; // sqrt(2);
+    }
+    display(WIDTH, HEIGHT, fld, L"flattenham-filled.png");
 }

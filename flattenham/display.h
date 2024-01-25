@@ -3,7 +3,7 @@
 #include <Gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
 
-void display(int WIDTH, int HEIGHT, double* fld)
+void display(int WIDTH, int HEIGHT, double* fld, const wchar_t* filename)
 {
     double pxlmaxval = 0;
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix)
@@ -105,5 +105,5 @@ void display(int WIDTH, int HEIGHT, double* fld)
     //g.DrawImage(&bitmap, 0, 0);
     CLSID pngClsid;
     (void)CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
-    bmp->Save(L"flattenham.png", &pngClsid, NULL);
+    bmp->Save(filename, &pngClsid, NULL);
 }
