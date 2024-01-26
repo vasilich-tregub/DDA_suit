@@ -78,7 +78,7 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 
                 double d2lsign = copysign(1.0, d2l);
                 if (d2lsign != convexconcave)
-                    continue;
+                    continue; // is it skipped because this distance is calculated in the iteration over nodes STRICTLY BETWEEN endpoints?
                 d2l = copysign(
                     sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
                     d2l);
