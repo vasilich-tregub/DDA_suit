@@ -4,19 +4,19 @@
 #include <iostream>
 #include "display.h"
 
-constexpr int WIDTH = 8;
-constexpr int HEIGHT = 8;
+constexpr int WIDTH = 128;
+constexpr int HEIGHT = 128;
 
 double fld[WIDTH * HEIGHT]{};
 
 void setPixel(int x, int y, double Y = 0)
 {
-    double Yfld = fld[x + y * WIDTH];
+    /*double Yfld = fld[x + y * WIDTH];
     if (Y != 0 && Y + Yfld == 0)
     {
         fld[x + y * WIDTH] = std::numeric_limits<double>::quiet_NaN();
         return;
-    }
+    }*/
     if (std::isnan(fld[x + y * WIDTH]) || (abs(Y) < abs(fld[x + y * WIDTH])))
     {
         fld[x + y * WIDTH] = Y;
@@ -46,8 +46,7 @@ vec tricross(vec v1, vec v2, vec v3) // triple cross product, I use it to find p
     return { (v2.x * v3.y - v2.y * v3.x) * v1.y, (v2.y * v3.x - v2.x * v3.y) * v1.x };
 }
 
-vec priorlinevec{ 0, 0 };
-
+vec priorlinevec{ 0, 0 }; // TODO: replace 'priorlinevec' tinkering with a test on position of a foot of normal vector from a current node to the line
 void boundaryLine(double x0, double y0, double x1, double y1)
 {
     if (x0 == x1 && y0 == y1)
@@ -360,15 +359,15 @@ int main()
     //boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
 
     double w = WIDTH, h = HEIGHT;
-    /*boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+    boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8);
     boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
     boundaryLine(5 * w / 8, 2 * h / 8, 5 * w / 8, 6 * h / 8);
     boundaryLine(5 * w / 8, 6 * h / 8, 4 * w / 8, 3 * h / 8);
-    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);*/
+    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);
 
-    //boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
-    boundaryLine(5 * w / 8, 2 * h / 8, 4 * w / 8/* - 0.00001*/, 6 * h / 8);
-    boundaryLine(4 * w / 8/* - 0.00001*/, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+    /*boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
+    boundaryLine(5 * w / 8, 2 * h / 8, 4 * w / 8/* - 0.00001* /, 6 * h / 8);
+    boundaryLine(4 * w / 8/* - 0.00001* /, 6 * h / 8, 3 * w / 8, 2 * h / 8);*/
 
     display(WIDTH, HEIGHT, fld, L"flattenham.png");
 

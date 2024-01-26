@@ -33,12 +33,12 @@ double fld[WIDTH * HEIGHT]{};
 
 void setPixel(int x, int y, double Y = 0)
 {
-    double Yfld = fld[x + y * WIDTH];
+    /*double Yfld = fld[x + y * WIDTH];
     if (Y != 0 && Y + Yfld == 0)
     {
         fld[x + y * WIDTH] = std::numeric_limits<double>::quiet_NaN();
         return;
-    }
+    }*/
     if (std::isnan(fld[x + y * WIDTH]) || (abs(Y) < abs(fld[x + y * WIDTH])))
     {
         fld[x + y * WIDTH] = Y;
