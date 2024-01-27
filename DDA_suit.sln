@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdf1D", "sdf1D\sdf1D.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdf2D", "sdf2D\sdf2D.vcxproj", "{C58B0B2F-DA2B-4D6C-AE6E-16F6DA71B859}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "signed-areas", "signed-areas\signed-areas.vcxproj", "{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{C58B0B2F-DA2B-4D6C-AE6E-16F6DA71B859}.Release|x64.Build.0 = Release|x64
 		{C58B0B2F-DA2B-4D6C-AE6E-16F6DA71B859}.Release|x86.ActiveCfg = Release|Win32
 		{C58B0B2F-DA2B-4D6C-AE6E-16F6DA71B859}.Release|x86.Build.0 = Release|Win32
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Debug|x64.ActiveCfg = Debug|x64
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Debug|x64.Build.0 = Debug|x64
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Debug|x86.ActiveCfg = Debug|Win32
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Debug|x86.Build.0 = Debug|Win32
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Release|x64.ActiveCfg = Release|x64
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Release|x64.Build.0 = Release|x64
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Release|x86.ActiveCfg = Release|Win32
+		{4EB84605-0E7D-436A-B2D4-1A4C10CE89E2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
