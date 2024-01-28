@@ -4,8 +4,8 @@
 #include <iostream>
 #include "display.h"
 
-constexpr int WIDTH = 128;
-constexpr int HEIGHT = 128;
+constexpr int WIDTH = 32;
+constexpr int HEIGHT = 32;
 
 double fld[WIDTH * HEIGHT]{};
 
@@ -78,7 +78,7 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 
                 double d2lsign = copysign(1.0, d2l);
                 if (d2lsign != convexconcave)
-                    continue; // is it skipped because this distance is calculated in the iteration over nodes STRICTLY BETWEEN endpoints?
+                    continue; // to skip, as the node with a normal vector's foot situated within the segment will be processed in the between-eps iteration
                 d2l = copysign(
                     sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
                     d2l);
@@ -359,11 +359,11 @@ int main()
     //boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
 
     double w = WIDTH, h = HEIGHT;
-    boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+    boundaryLine(3 * w / 8 - 0.00001, 6 * h / 8, 3 * w / 8, 2 * h / 8);
     boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
-    boundaryLine(5 * w / 8, 2 * h / 8, 5 * w / 8, 6 * h / 8);
+    boundaryLine(5 * w / 8 - 0.00001, 2 * h / 8, 5 * w / 8, 6 * h / 8);
     boundaryLine(5 * w / 8, 6 * h / 8, 4 * w / 8, 3 * h / 8);
-    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);
+    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);/**/
 
     /*boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
     boundaryLine(5 * w / 8, 2 * h / 8, 4 * w / 8/* - 0.00001* /, 6 * h / 8);
