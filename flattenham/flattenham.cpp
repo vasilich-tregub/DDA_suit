@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "flattenham.h"
 #include "display.h"
 
 constexpr int WIDTH = 32;
