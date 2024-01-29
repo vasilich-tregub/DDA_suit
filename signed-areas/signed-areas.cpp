@@ -10,8 +10,8 @@
 #include "signed-areas.h"
 #include "display.h"
 
-constexpr int WIDTH = 64;
-constexpr int HEIGHT = 64;
+constexpr int WIDTH = 1024;
+constexpr int HEIGHT = 1024;
 
 double fld[WIDTH * HEIGHT]{};
 
@@ -441,13 +441,14 @@ int main()
     {
         for (int X = 0; X < width; ++X)
         {
-            if ((X - width / 4) * (X - width / 4) + (Y - 3 * height / 4) * (Y - 3 * height / 4) < width * width / 64) distance[Y * width + X] = 0;
-            if ((X - 3 * width / 4) * (X - 3 * width / 4) + (Y - height / 4) * (Y - height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            //if ((X - width / 4) * (X - width / 4) + (Y - 3 * height / 4) * (Y - 3 * height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            //if ((X - 3 * width / 4) * (X - 3 * width / 4) + (Y - height / 4) * (Y - height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            if ((X - width / 2) * (X - width / 2) + (Y - height / 2) * (Y - height / 2) < width * width / 16) distance[Y * width + X] = 0;
         }
     }
 
     signed_areas(WIDTH, HEIGHT, distance);
-    for (int ix = 0; ix < width * height; ++ix) fld[ix] = distance[ix];
+    for (int ix = 0; ix < width * height; ++ix) fld[ix] = sqrt(distance[ix]);
 
     display(WIDTH, HEIGHT, fld, L"signed-areas-distance.png");
 

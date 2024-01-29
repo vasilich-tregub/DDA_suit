@@ -99,6 +99,6 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             delete[] v;
             delete[] z;
         }
-
     }
+    std::cout << cyclecount << std::endl;
 }
