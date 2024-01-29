@@ -7,6 +7,7 @@
 #include <math.h>
 #include <vector>
 
+#include "signed-areas.h"
 #include "display.h"
 
 constexpr int WIDTH = 64;
@@ -390,13 +391,17 @@ int main()
 
     constexpr double nan = std::numeric_limits<double>::quiet_NaN();
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = nan;
-
+    double polyarea = 0;
     for (auto poly : lines)
     {
+        polyarea = 0;
         for (int i = 1; i < poly.size(); ++i)
         {
             boundaryLine(poly[i - 1].first, poly[i - 1].second, poly[i].first, poly[i].second);
+            polyarea += (poly[i].first - poly[i - 1].first) * (poly[i].second + poly[i - 1].second);
         }
+        polyarea += (poly[0].first - poly[poly.size() - 1].first) * (poly[0].second - poly[poly.size() - 1].second);
+        std::cout << polyarea << std::endl;
     }
     display(WIDTH, HEIGHT, fld, L"signed-areas-BC.png");
 
@@ -418,5 +423,33 @@ int main()
         fldvalsign = 1.0; // sqrt(2);
     }
     display(WIDTH, HEIGHT, fld, L"signed-areas-filled.png");
+
+    int width = WIDTH;
+    int height = HEIGHT - 1;
+
+    int* distance = new int[width * height];
+
+    for (int Y = 0; Y < height; ++Y)
+    {
+        for (int X = 0; X < width; ++X)
+        {
+            distance[Y * width + X] = SHRT_MAX;
+        }
+    }
+
+    for (int Y = 0; Y < height; ++Y)
+    {
+        for (int X = 0; X < width; ++X)
+        {
+            if ((X - width / 4) * (X - width / 4) + (Y - 3 * height / 4) * (Y - 3 * height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            if ((X - 3 * width / 4) * (X - 3 * width / 4) + (Y - height / 4) * (Y - height / 4) < width * width / 64) distance[Y * width + X] = 0;
+        }
+    }
+
+    signed_areas(WIDTH, HEIGHT, distance);
+    for (int ix = 0; ix < width * height; ++ix) fld[ix] = distance[ix];
+
+    display(WIDTH, HEIGHT, fld, L"signed-areas-distance.png");
+
 }
 
