@@ -4,8 +4,7 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
 {
     int width = WIDTH;
     int height = HEIGHT - 1;
-    int ndots = width * height;
-    int* coldistance = new int[height];
+
     int* rowdistance = new int[width] {};
 
     int cyclecount = 0;
@@ -13,92 +12,93 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
     // vertical run: calculate vertical distances
     for (int X = 0; X < width; ++X)
     {
-        // store a copy of column of distances 
-        // because the next loop contains inner loop over the row index
-        // and can modify the column data
-        for (int Y = 0; Y < height; ++Y)
+        int step = 1;
+        for (int Y = 1; Y < height; ++Y)
         {
-            coldistance[Y] = distance[Y * width + X];
-            ++cyclecount;
-        }
-        int* v = new int[height];
-        double* z = new double[height + 1];
-        int k = 0;
-        v[0] = 0;
-        z[0] = SHRT_MIN;
-        z[1] = SHRT_MAX;
-        for (int q = 1; q <= height - 1; q++)
-        {
-            double s = ((coldistance[q] + q * q) - (coldistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            while (s <= z[k]) {
-                k--;
-                s = ((coldistance[q] + q * q) - (coldistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-                ++cyclecount;
-            }
-            k++;
-            v[k] = q;
-            z[k] = s;
-            z[k + 1] = SHRT_MAX;
-            ++cyclecount;
-        }
-
-        k = 0;
-        for (int q = 0; q <= height - 1; q++)
-        {
-            while (z[k + 1] < q)
-                k++;
-            distance[q * width + X] = (q - v[k]) * (q - v[k]) + coldistance[v[k]];
-            ++cyclecount;
-        }
-
-        delete[] v;
-        delete[] z;
-
-        // horizontal run: process distances row-wise
-
-        for (int Y = 0; Y < height; ++Y)
-        {
-            // store a copy of row of distances 
-            // because the next loop contains inner loop over the column index
-            // and can modify the row data
-            for (int X = 0; X < width; ++X)
+            if (distance[Y * width + X] > distance[(Y - 1) * width + X])
             {
-                rowdistance[X] = distance[Y * width + X];
+                distance[Y * width + X] = distance[(Y - 1) * width + X] + step;
+                step += 2;
                 ++cyclecount;
             }
-            int* v = new int[width];
-            double* z = new double[width + 1];
-            int k = 0;
-            v[0] = 0;
-            z[0] = SHRT_MIN;
-            z[1] = SHRT_MAX;
-            for (int q = 1; q <= width - 1; q++)
+            else
             {
-                double s = ((rowdistance[q] + q * q) - (rowdistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-                while (s <= z[k]) {
-                    k--;
-                    s = ((rowdistance[q] + q * q) - (rowdistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-                    ++cyclecount;
-                }
-                k++;
-                v[k] = q;
-                z[k] = s;
-                z[k + 1] = SHRT_MAX;
-                ++cyclecount;
+                step = 1;
             }
-
-            k = 0;
-            for (int q = 0; q <= width - 1; q++)
+        }
+        step = 1;
+        for (int Y = height - 2; Y > 0; --Y)
+        {
+            if (distance[Y * width + X] > distance[(Y + 1) * width + X])
             {
-                while (z[k + 1] < q)
-                    k++;
-                distance[Y * width + q] = (q - v[k]) * (q - v[k]) + rowdistance[v[k]];
+                distance[Y * width + X] = distance[(Y + 1) * width + X] + step;
+                step += 2;
                 ++cyclecount;
             }
-
-            delete[] v;
-            delete[] z;
+            else
+            {
+                step = 1;
+            }
         }
     }
+    // horizontal run: process distances row-wise
+    int* js = new int[width + 1];
+    for (int X = 0; X < width + 1; ++X) js[X] = 0;
+    int* ks = new int[width];
+    for (int X = 0; X < width; ++X) ks[X] = 0;
+
+    for (int Y = 0; Y < height; ++Y)
+    {
+        for (int X = 0; X < width; ++X)
+        {
+            rowdistance[X] = distance[Y * width + X];
+            ++cyclecount;
+        }
+        int idx = 0; // current parabola index
+        js[0] = -(width * width + height * height);
+        ks[0] = 0;
+        int m = 0; // 'global' (i.e., outside loops) column index
+        while (m < width - 1)
+        {
+            ++m;
+            if (rowdistance[m] < (width * width + height * height))
+            {
+                // compute js with prev parabola
+                int k = ks[idx];
+                int j =
+                    (int)ceil((rowdistance[m] - rowdistance[k] - k * k + m * m) /
+                        (2.0 * (m - k)));
+                while (j <= js[idx])
+                {
+                    idx--;
+                    k = ks[idx];
+                    j =
+                        (int)ceil((rowdistance[m] - rowdistance[k] - k * k + m * m) /
+                            (2.0 * (m - k)));
+                }
+                if (j < width)
+                {
+                    idx++;
+                    js[idx] = std::max(0, j);
+                    ks[idx] = m;
+                }
+            }
+        }
+        js[0] = 0;
+        js[idx + 1] = width + 1;
+        for (int n = 0; n < idx; ++n)
+        {
+            int k = ks[n];
+            for (int xX = js[n]; xX < js[n + 1] - 1; ++xX)
+            {
+                distance[Y * width + xX] = rowdistance[xX] + (xX - k) * (xX - k);
+                ++cyclecount;
+            }
+        }
+    }
+    delete js;
+    delete ks;
+    delete rowdistance;
+
     std::cout << cyclecount << std::endl;
 }

@@ -1,0 +1,36 @@
+5 % determine distances row-wise
+6 for i = 1:M % all rows
+7   % copy row of vertical distances
+8   distMatV = distMat(i,:) ;
+9   for j = 1:L % column positions j0
+10     % initialize minimum distance
+11     distMin = distMatV(j);
+12     for k = j+1:L % compare to column positions forward
+13       if distMatV(k) < maxDist
+14         % combine vert. with horiz. component
+15         distHor = (k−j)∗(k−j);
+16         if distHor >= distMin
+17           break; % pure horizontal component is longer then current distance 
+18         end
+19         dist = distMatV(k) + distHor;
+20         if distMin > dist
+21           distMin = dist; % store new minimum distance
+22         end
+23       end
+24     end
+25     for k = j−1:−1:1 % compare to column positions backward
+26       if distMatV(k) < maxDist
+27         % combine vertical with horizontal component
+28         distHor = (k−j)∗(k−j);
+29         if distHor >= distMin
+30           break; % pure horizontal component ...
+31         end
+32         dist = distMatV(k) + distHor;
+33         if distMin > dist
+34           distMin = dist; % store new minimum distance
+35         end
+36       end
+37     end
+38     distMat(i , j ) = distMin; % assign minimum
+39   end
+40 end

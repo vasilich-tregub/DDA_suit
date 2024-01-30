@@ -360,9 +360,11 @@ int main()
     //boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
 
     double w = WIDTH, h = HEIGHT;
-    boundaryLine(3 * w / 8 - 0.00001, 6 * h / 8, 3 * w / 8, 2 * h / 8);
-    boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
-    boundaryLine(5 * w / 8 - 0.00001, 2 * h / 8, 5 * w / 8, 6 * h / 8);
+    boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8); //
+    //boundaryLine(3 * w / 8 - 0.00001, 6 * h / 8, 3 * w / 8, 2 * h / 8);
+    boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8); //
+    boundaryLine(5 * w / 8, 2 * h / 8, 5 * w / 8, 6 * h / 8); //
+    //boundaryLine(5 * w / 8 - 0.00001, 2 * h / 8, 5 * w / 8, 6 * h / 8);
     boundaryLine(5 * w / 8, 6 * h / 8, 4 * w / 8, 3 * h / 8);
     boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);/**/
 
@@ -378,7 +380,8 @@ int main()
         for (int X = 0; X < WIDTH; ++X)
         {
             int iX = Y * WIDTH + X;
-            if (!std::isnan(fld[iX]) && fld[iX] * fldvalsign <= 0) // test for sign flip only
+            // if (!std::isnan(fld[iX]) && fld[iX] * fldvalsign <= 0) // test for sign flip only
+            if (!std::isnan(fld[iX]) && fld[iX] * fldvalsign < 0) // test for sign flip only
             {
                 fldvalsign = -fldvalsign;
             }

@@ -7,11 +7,11 @@
 #include <math.h>
 #include <vector>
 
-#include "signed-areas.h"
+#include "signed-areas.improved.h"
 #include "display.h"
 
-constexpr int WIDTH = 1024;
-constexpr int HEIGHT = 1024;
+constexpr int WIDTH = 128;
+constexpr int HEIGHT = 128;
 
 double fld[WIDTH * HEIGHT]{};
 
@@ -429,11 +429,14 @@ int main()
 
     int* distance = new int[width * height];
 
+    int DIST_MAX = width * width + height * height;
+
+
     for (int Y = 0; Y < height; ++Y)
     {
         for (int X = 0; X < width; ++X)
         {
-            distance[Y * width + X] = SHRT_MAX;
+            distance[Y * width + X] = DIST_MAX;
         }
     }
 
@@ -441,14 +444,20 @@ int main()
     {
         for (int X = 0; X < width; ++X)
         {
-            //if ((X - width / 4) * (X - width / 4) + (Y - 3 * height / 4) * (Y - 3 * height / 4) < width * width / 64) distance[Y * width + X] = 0;
-            //if ((X - 3 * width / 4) * (X - 3 * width / 4) + (Y - height / 4) * (Y - height / 4) < width * width / 64) distance[Y * width + X] = 0;
-            if ((X - width / 2) * (X - width / 2) + (Y - height / 2) * (Y - height / 2) < width * width / 16) distance[Y * width + X] = 0;
+            if ((X - width / 4) * (X - width / 4) + (Y - 3 * height / 4) * (Y - 3 * height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            if ((X - 3 * width / 4) * (X - 3 * width / 4) + (Y - height / 4) * (Y - height / 4) < width * width / 64) distance[Y * width + X] = 0;
+            ////if ((X - width / 2) * (X - width / 2) + (Y - height / 2) * (Y - height / 2) < width * width / 64) distance[Y * width + X] = 0;
+            //if (X > width / 8 && X < 7 * width / 8 && Y == height / 2) distance[Y * width + X] = 0;
         }
     }
 
     signed_areas(WIDTH, HEIGHT, distance);
-    for (int ix = 0; ix < width * height; ++ix) fld[ix] = sqrt(distance[ix]);
+    for (int ix = width; ix < width * height; ++ix) fld[ix] = sqrt(sqrt(distance[ix]));
+    double maxfld = 0;
+    for (int ix = 0; ix < width * height; ++ix) maxfld = (fld[ix] > maxfld) ? fld[ix] : maxfld; 
+    for (int ix = 0; ix < width; ++ix) fld[ix] = 0;
+    for (int ix = 0; ix < width; ++ix) fld[height * width + ix] = 0;
+    for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) { if (fld[ix] != 0) fld[ix] = maxfld - fld[ix]; else fld[ix] = -maxfld; }/**/
 
     display(WIDTH, HEIGHT, fld, L"signed-areas-distance.png");
 
