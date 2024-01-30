@@ -10,14 +10,14 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
     int cyclecount = 0;
 
     // vertical run: calculate vertical distances
-    for (int X = 0; X < width; ++X)
+    for (int X = 0; X < WIDTH; ++X)
     {
         int step = 1;
-        for (int Y = 1; Y < height; ++Y)
+        for (int Y = 1; Y < HEIGHT; ++Y)
         {
-            if (distance[Y * width + X] > distance[(Y - 1) * width + X])
+            if (distance[Y * WIDTH + X] > distance[(Y - 1) * WIDTH + X])
             {
-                distance[Y * width + X] = distance[(Y - 1) * width + X] + step;
+                distance[Y * WIDTH + X] = distance[(Y - 1) * WIDTH + X] + step;
                 step += 2;
                 ++cyclecount;
             }
@@ -27,11 +27,11 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             }
         }
         step = 1;
-        for (int Y = height - 2; Y > 0; --Y)
+        for (int Y = HEIGHT - 2; Y >= 0; --Y)
         {
-            if (distance[Y * width + X] > distance[(Y + 1) * width + X])
+            if (distance[Y * WIDTH + X] > distance[(Y + 1) * WIDTH + X])
             {
-                distance[Y * width + X] = distance[(Y + 1) * width + X] + step;
+                distance[Y * WIDTH + X] = distance[(Y + 1) * WIDTH + X] + step;
                 step += 2;
                 ++cyclecount;
             }
@@ -43,7 +43,7 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
     }
     // horizontal run: process distances row-wise
 
-    for (int Y = 0; Y < height; ++Y)
+    for (int Y = 0; Y <= height; ++Y)
     {
         for (int X = 0; X < width; ++X)
         {

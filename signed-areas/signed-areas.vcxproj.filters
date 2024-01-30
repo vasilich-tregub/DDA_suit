@@ -29,5 +29,8 @@
     <ClInclude Include="signed-areas.improved.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="signed-areas.simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
