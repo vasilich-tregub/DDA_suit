@@ -55,7 +55,7 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             int distMin = rowdistance[X];
             for (int k = X + 1; k < width; ++k)
             {
-                if (rowdistance[k] < (width * width + height * height))
+                if (rowdistance[k] < (width * width + height * height)) // combine vertical with horizontal component
                 {
                     int distHor = (k - X) * (k - X);
                     if (distHor >= distMin)
@@ -69,12 +69,11 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
                     }
                 }
             }
-            for (int k = X-1; k > 0; --k) // compare to column positions backward
+            for (int k = X - 1; k > 0; --k) // compare to column positions backward
             {
-                if (rowdistance[k] < (width * width + height * height))
-                    // combine vertical with horizontal component
+                if (rowdistance[k] < (width * width + height * height)) // combine vertical with horizontal component
                 {
-                    int distHor = (k-X)*(k-X);
+                    int distHor = (k - X) * (k - X);
                     if (distHor >= distMin)
                     {
                         break;// pure horizontal component ...

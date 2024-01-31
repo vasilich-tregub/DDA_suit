@@ -10,8 +10,8 @@
 #include "signed-areas.h"
 #include "display.h"
 
-constexpr int WIDTH = 8;
-constexpr int HEIGHT = 8;
+constexpr int WIDTH = 2048;
+constexpr int HEIGHT = 2048;
 
 double fld[WIDTH * HEIGHT]{};
 
@@ -436,8 +436,8 @@ int main()
             distance[Y * WIDTH + X] = DIST_MAX;
         }
     }
-    distance[HEIGHT / 2 * WIDTH + WIDTH / 2] = 0;
-    /*for (int Y = 0; Y < HEIGHT; ++Y)
+    //distance[HEIGHT / 2 * WIDTH + WIDTH / 2] = 0;
+    for (int Y = 0; Y < HEIGHT; ++Y)
     {
         for (int X = 0; X < WIDTH; ++X)
         {
@@ -446,7 +446,7 @@ int main()
             ////if ((X - WIDTH / 2) * (X - WIDTH / 2) + (Y - HEIGHT / 2) * (Y - HEIGHT / 2) < WIDTH * WIDTH / 64) distance[Y * WIDTH + X] = 0;
             //if (X > WIDTH / 8 && X < 7 * WIDTH / 8 && Y == HEIGHT / 2) distance[Y * WIDTH + X] = 0;
         }
-    }*/
+    }
 
     signed_areas(WIDTH, HEIGHT, distance);
     for (int ix = 0; ix < WIDTH * HEIGHT; ++ix) fld[ix] = sqrt(sqrt(distance[ix]));

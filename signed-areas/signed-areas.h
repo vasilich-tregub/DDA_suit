@@ -2,12 +2,8 @@
 
 void signed_areas(int WIDTH, int HEIGHT, int* distance)
 {
-    int width = WIDTH;
-    int height = HEIGHT - 1;
-
-    int* rowdistance = new int[width] {};
-
-    int cyclecount = 0;
+    int* rowdistance = new int[WIDTH] {};
+    //int cyclecount = 0;
 
     // vertical run: calculate vertical distances
     for (int X = 0; X < WIDTH; ++X)
@@ -19,7 +15,7 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             {
                 distance[Y * WIDTH + X] = distance[(Y - 1) * WIDTH + X] + step;
                 step += 2;
-                ++cyclecount;
+                //++cyclecount;
             }
             else
             {
@@ -27,13 +23,13 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             }
         }
         step = 1;
-        for (int Y = HEIGHT - 2; Y > 0; --Y)
+        for (int Y = HEIGHT - 2; Y >= 0; --Y)
         {
             if (distance[Y * WIDTH + X] > distance[(Y + 1) * WIDTH + X])
             {
-                distance[Y * WIDTH + X] = distance[(Y + 1) * width + X] + step;
+                distance[Y * WIDTH + X] = distance[(Y + 1) * WIDTH + X] + step;
                 step += 2;
-                ++cyclecount;
+                //++cyclecount;
             }
             else
             {
@@ -41,64 +37,64 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             }
         }
     }
-    // horizontal run: process distances row-wise
-    int* js = new int[width + 1];
-    for (int X = 0; X < width + 1; ++X) js[X] = 0;
-    int* ks = new int[width];
-    for (int X = 0; X < width; ++X) ks[X] = 0;
 
-    for (int Y = 0; Y <= height; ++Y)
+    // horizontal run: process distances row-wise
+    int* ixsect = new int[WIDTH + 1];
+    for (int X = 0; X < WIDTH + 1; ++X) ixsect[X] = 0;
+    int* parapos = new int[WIDTH];
+    for (int X = 0; X < WIDTH; ++X) parapos[X] = 0;
+    for (int Y = 0; Y < HEIGHT; ++Y)
     {
-        for (int X = 0; X < width; ++X)
+        for (int X = 0; X < WIDTH; ++X)
         {
-            rowdistance[X] = distance[Y * width + X];
-            ++cyclecount;
+            rowdistance[X] = distance[Y * WIDTH + X];
+            //++cyclecount;
         }
-        int idx = 0; // current parabola index
-        js[0] = -(width * width + height * height);
-        ks[0] = 0;
+        int paraix = 0; // current parabola index
+        ixsect[0] = -(WIDTH * WIDTH + HEIGHT * HEIGHT);
+        parapos[0] = 0;
         int m = 0; // 'global' (i.e., outside loops) column index
-        while (m < width - 1)
+        while (m < WIDTH - 1)
         {
             ++m;
-            if (rowdistance[m] < (width * width + height * height))
+            if (rowdistance[m] < (WIDTH * WIDTH + HEIGHT * HEIGHT))
             {
-                // compute js with prev parabola
-                int k = ks[idx];
+                // compute ixsect with prev parabola
+                int k = parapos[paraix];
                 int j =
                     (int)ceil((rowdistance[m] - rowdistance[k] - k * k + m * m) /
                         (2.0 * (m - k)));
-                while (j <= js[idx])
+                while (j <= ixsect[paraix])
                 {
-                    idx--;
-                    k = ks[idx];
+                    paraix--;
+                    k = parapos[paraix];
                     j =
                         (int)ceil((rowdistance[m] - rowdistance[k] - k * k + m * m) /
                             (2.0 * (m - k)));
                 }
-                if (j < width)
+                if (j <= WIDTH - 1)
                 {
-                    idx++;
-                    js[idx] = std::max(0, j);
-                    ks[idx] = m;
+                    paraix++;
+                    ixsect[paraix] = std::max(0, j);
+                    parapos[paraix] = m;
                 }
             }
         }
-        js[0] = 0;
-        js[idx + 1] = width + 1;
-        for (int n = 0; n < idx; ++n)
+        ixsect[0] = 0;
+        ixsect[paraix + 1] = WIDTH;
+        for (int n = 0; n <= paraix; ++n)
         {
-            int k = ks[n];
-            for (int xX = js[n]; xX < js[n + 1] - 1; ++xX)
+            int k = parapos[n];
+            for (int xX = ixsect[n]; xX < ixsect[n + 1]; ++xX)
             {
-                distance[Y * width + xX] = rowdistance[xX] + (xX - k) * (xX - k);
-                ++cyclecount;
+                distance[Y * WIDTH + xX] = rowdistance[k] + (xX - k) * (xX - k);
+                //++cyclecount;
             }
         }
     }
-    delete js;
-    delete ks;
+    delete ixsect;
+    delete parapos;
     delete rowdistance;
 
-    std::cout << cyclecount << std::endl;
+    //std::cout << cyclecount << std::endl;
 }
