@@ -441,10 +441,11 @@ int main()
     {
         for (int X = 0; X < WIDTH; ++X)
         {
-            if ((X - WIDTH / 4) * (X - WIDTH / 4) + (Y - 3 * HEIGHT / 4) * (Y - 3 * HEIGHT / 4) < WIDTH * WIDTH / 64) distance[Y * WIDTH + X] = 0;
+            if (fld[Y * WIDTH + X] > 0) distance[Y * WIDTH + X] = DIST_MAX; else distance[Y * WIDTH + X] = 0;
+            /*if ((X - WIDTH / 4) * (X - WIDTH / 4) + (Y - 3 * HEIGHT / 4) * (Y - 3 * HEIGHT / 4) < WIDTH * WIDTH / 64) distance[Y * WIDTH + X] = 0;
             if ((X - 3 * WIDTH / 4) * (X - 3 * WIDTH / 4) + (Y - HEIGHT / 4) * (Y - HEIGHT / 4) < WIDTH * WIDTH / 64) distance[Y * WIDTH + X] = 0;
             ////if ((X - WIDTH / 2) * (X - WIDTH / 2) + (Y - HEIGHT / 2) * (Y - HEIGHT / 2) < WIDTH * WIDTH / 64) distance[Y * WIDTH + X] = 0;
-            //if (X > WIDTH / 8 && X < 7 * WIDTH / 8 && Y == HEIGHT / 2) distance[Y * WIDTH + X] = 0;
+            //if (X > WIDTH / 8 && X < 7 * WIDTH / 8 && Y == HEIGHT / 2) distance[Y * WIDTH + X] = 0;*/
         }
     }
 
