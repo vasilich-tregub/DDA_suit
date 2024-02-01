@@ -92,9 +92,9 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             }
         }
     }
-    delete ixsect;
-    delete parapos;
-    delete rowdistance;
+    delete[] ixsect;
+    delete[] parapos;
+    delete[] rowdistance;
 
     //std::cout << cyclecount << std::endl;
 }

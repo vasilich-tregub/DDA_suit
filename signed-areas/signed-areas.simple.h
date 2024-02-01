@@ -67,5 +67,7 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
         }
 
     }
+
+    delete[] rowdistance;
     std::cout << cyclecount << std::endl;
 }

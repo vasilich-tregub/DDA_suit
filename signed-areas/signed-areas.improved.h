@@ -88,5 +88,6 @@ void signed_areas(int WIDTH, int HEIGHT, int* distance)
             distance[Y * width + X] = distMin; // assign minimum
         }
     }
+    delete[] rowdistance;
     std::cout << cyclecount << std::endl;
 }
