@@ -12,12 +12,6 @@ double fld[WIDTH * HEIGHT]{};
 
 void setPixel(int x, int y, double Y = 0)
 {
-    /*double Yfld = fld[x + y * WIDTH];
-    if (Y != 0 && Y + Yfld == 0)
-    {
-        fld[x + y * WIDTH] = std::numeric_limits<double>::quiet_NaN();
-        return;
-    }*/
     if (std::isnan(fld[x + y * WIDTH]) || (abs(Y) < abs(fld[x + y * WIDTH])))
     {
         fld[x + y * WIDTH] = Y;
@@ -60,130 +54,138 @@ void boundaryLine(double x0, double y0, double x1, double y1)
     double seglen2 = linevec.x * linevec.x + linevec.y * linevec.y;// dx* dx + dy * dy;
     double seglen = sqrt(seglen2);
     inode nextnode{};
-    // 1st endpoint
-    double convexconcave = copysign(1.0, cross(priorlinevec ,linevec));
-    for (int j = 0; j < 2; ++j)
-        for (int i = 0; i < 2; ++i)
-        {
-            //std::cout << i << j << std::endl;
-            vec nv0{ (ix0 + i - x0), (iy0 + j - y0) }; // 2D vector from {ix0 + i, iy0 + j} to {x0,y0}
-            // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
-            double d2l = cross(nv0, linevec) / seglen;
-            //std::cout << "d2l: " << d2l << std::endl;
-            // triple cross product and the vector to nv0 proj to linevec wrt {ix0+i,iy0+j}
-            vec proj = tricross(linevec, linevec, nv0) / seglen2;
-            //std::cout << proj.x << ", " << proj.y << std::endl;
-            if (((proj.x < (x0 - ix0 - i) && proj.x < (x1 - ix0 - i)) || (proj.x > (x0 - ix0 - i) && proj.x > (x1 - ix0 - i))) ||
-                ((proj.y < (y0 - iy0 - j) && proj.y < (y1 - iy0 - j)) || (proj.y > (y0 - iy0 - j) && proj.y > (y1 - iy0 - j))))
-            {
-                
-                double d2lsign = copysign(1.0, d2l);
-                if (d2lsign != convexconcave)
-                    continue; // to skip, as the node with a normal vector's foot situated within the segment will be processed in the between-eps iteration
-                d2l = copysign(
-                    sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
-                    d2l);
-            }
-            //std::cout << "d2ep0: " << d2l << std::endl;
-            setPixel(ix0 + i, iy0 + j, d2l);
-        }
-    // 2nd endpoint
-    for (int j = 0; j < 2; ++j)
-        for (int i = 0; i < 2; ++i)
-        {
-            //std::cout << i << j << std::endl;
-            vec nv1{ (ix1 + i - x1), (iy1 + j - y1) }; // 2D vector from {ix1 + i, iy1 + j} to {x1,y1}
-            // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
-            double d2l = cross(nv1, linevec) / seglen;
-            //std::cout << "d2l: " << d2l << std::endl;
-            // triple cross product and the vector to nv0 proj to linevec wrt {ix0+i,iy0+j}
-            vec proj = tricross(linevec, linevec, nv1) / seglen2;
-            //std::cout << proj.x << ", " << proj.y << std::endl;
-            if (((proj.x < (x1 - ix1 - i) && proj.x < (x0 - ix1 - i)) || (proj.x > (x1 - ix1 - i) && proj.x > (x0 - ix1 - i))) ||
-                ((proj.y < (y1 - iy1 - j) && proj.y < (y0 - iy1 - j)) || (proj.y > (y1 - iy1 - j) && proj.y > (y0 - iy1 - j))))
-            {
-                double d2lsign = copysign(1.0, d2l);
-                if (d2lsign != convexconcave)
-                    continue;
-                d2l = copysign(
-                    sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
-                    d2l);
-            }
-            //std::cout << "d2ep0: " << d2l << std::endl;
-            setPixel(ix1 + i, iy1 + j, d2l);
-        }
-
-    if (ix0 == ix1 && iy0 == iy1)
-        return;
-    // connecting line
-    // line intersection with grid
+    // connecting line intersection with grid 
     double yintersect = HEIGHT;
     double xintersect = WIDTH;
     bool intersectfound = false;
-    if (linevec.x != 0)
+    
+    // 1st endpoint
+    double convexconcave = copysign(1.0, cross(priorlinevec ,linevec));
+    if (ix0 == ix1 && iy0 == iy1)
+        return;
+    if (x0 != ix0 && y0 != iy0)
     {
-        // check if left boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
-        if ((x1 <= ix0 && ix0 <= x0))
-        {
-            yintersect = linevec.y / linevec.x * (ix0 - x0) + y0;
-            xintersect = ix0;
-            if (yintersect >= iy0 && yintersect <= iy0 + 1)
+        for (int j = 0; j < 2; ++j)
+            for (int i = 0; i < 2; ++i)
             {
-                intersectfound = true;
-                nextnode = { ix0 - 1, iy0, RIGHT };
-            }
-        }
-        // check if right boundary is crossed
-        if (!intersectfound && (x0 <= ix0 + 1 && ix0 + 1 <= x1))
-        {
-            yintersect = linevec.y / linevec.x * (ix0 + 1 - x0) + y0;
-            xintersect = ix0 + 1;
-            if (yintersect >= iy0 && yintersect <= iy0 + 1)
-            {
-                intersectfound = true;
-                nextnode = { ix0 + 1, iy0, LEFT };
-            }
-        }
-        if (!intersectfound)
-        {
-            xintersect = WIDTH;
-            yintersect = HEIGHT;
-            nextnode = { WIDTH, HEIGHT };
-        }
-    }
-    if (linevec.y != 0)
-    {
-        // check if bottom boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
-        if ((y1 <= iy0 && iy0 <= y0))
-        {
-            xintersect = linevec.x / linevec.y * (iy0 - y0) + x0;
-            yintersect = iy0;
-            if (xintersect >= ix0 && xintersect < ix0 + 1)
-            {
-                intersectfound = true;
-                nextnode = { ix0, iy0 - 1, TOP };
-            }
-        }
-        // check if top boundary is crossed
-        if (!intersectfound && ((y0 <= iy0 + 1 && iy0 + 1 <= y1)))
-        {
-            xintersect = linevec.x / linevec.y * (iy0 + 1 - y0) + x0;
-            yintersect = iy0 + 1;
-            if (xintersect >= ix0 && xintersect <= ix0 + 1)
-            {
-                intersectfound = true;
-                nextnode = { ix0, iy0 + 1, BOTTOM };
-            }
-        }
-        if (!intersectfound)
-        {
-            xintersect = WIDTH;
-            yintersect = HEIGHT;
-            nextnode = { WIDTH, HEIGHT };
-        }
-    }
-    //std::cout << "Next node: " << nextnode.x << " " << nextnode.y << std::endl;
+                double d2node = (x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j); // distance to node
+                if (d2node > 1.0)
+                    continue;
+                vec nv0{ (ix0 + i - x0), (iy0 + j - y0) }; // 2D vector from {ix0 + i, iy0 + j} to {x0,y0}
+                // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
+                double d2l = cross(nv0, linevec) / seglen;
+                // triple cross product and the vector to nv0 foot to linevec wrt {ix0+i,iy0+j}
+                vec foot = tricross(linevec, linevec, nv0) / seglen2;
+                if (((foot.x < (x0 - ix0 - i) && foot.x < (x1 - ix0 - i)) || (foot.x > (x0 - ix0 - i) && foot.x > (x1 - ix0 - i))) ||
+                    ((foot.y < (y0 - iy0 - j) && foot.y < (y1 - iy0 - j)) || (foot.y > (y0 - iy0 - j) && foot.y > (y1 - iy0 - j))))
+                {
 
+                    /*double d2lsign = copysign(1.0, d2l);
+                    if (d2lsign != convexconcave)
+                        continue;*/ // to skip, as the node with a normal vector's foot situated within the segment will be processed in the between-eps iteration
+                    d2l = copysign(
+                        sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
+                        d2l);
+                }
+                setPixel(ix0 + i, iy0 + j, d2l);
+            }
+
+        if (linevec.x != 0 && abs(linevec.x) > abs(linevec.y))
+        {
+            // check if left boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
+            if ((x1 < ix0 && ix0 < x0))
+            {
+                yintersect = linevec.y / linevec.x * (ix0 - x0) + y0;
+                xintersect = ix0;
+                if (yintersect >= iy0 && yintersect <= iy0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 - 1, iy0, RIGHT };
+                }
+            }
+            // check if right boundary is crossed
+            if (!intersectfound && (x0 < ix0 + 1 && ix0 + 1 < x1))
+            {
+                yintersect = linevec.y / linevec.x * (ix0 + 1 - x0) + y0;
+                xintersect = ix0 + 1;
+                if (yintersect > iy0 && yintersect < iy0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 + 1, iy0, LEFT };
+                }
+            }
+            if (!intersectfound)
+            {
+                xintersect = WIDTH;
+                yintersect = HEIGHT;
+                nextnode = { WIDTH, HEIGHT };
+            }
+        }
+        if (linevec.y != 0 && abs(linevec.y) > abs(linevec.x))
+        {
+            // check if bottom boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
+            if ((y1 < iy0 && iy0 < y0))
+            {
+                xintersect = linevec.x / linevec.y * (iy0 - y0) + x0;
+                yintersect = iy0;
+                if (xintersect > ix0 && xintersect < ix0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0, iy0 - 1, TOP };
+                }
+            }
+            // check if top boundary is crossed
+            if (!intersectfound && ((y0 < iy0 + 1 && iy0 + 1 < y1)))
+            {
+                xintersect = linevec.x / linevec.y * (iy0 + 1 - y0) + x0;
+                yintersect = iy0 + 1;
+                if (xintersect > ix0 && xintersect < ix0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0, iy0 + 1, BOTTOM };
+                }
+            }
+            if (!intersectfound)
+            {
+                xintersect = WIDTH;
+                yintersect = HEIGHT;
+                nextnode = { WIDTH, HEIGHT };
+            }
+        }
+        //std::cout << "Next node: " << nextnode.x << " " << nextnode.y << std::endl;
+    }
+    else if (x0 == ix0 && y0 == iy0)
+    {
+        setPixel(ix0, iy0);
+        double d2node = 1;
+        for (int k = 0; k <= 3; ++k)
+        {
+            vec nv0{ 1 - 2 * (k & 1), 1 - 2 * ((k + 1) & 1) }; // 2D vector from left/up/right/bottom to {x0,y0}
+            // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
+            double d2l = cross(nv0, linevec) / seglen;
+            // triple cross product and the vector to nv0 foot to linevec wrt left/up/right/bottom node
+            vec foot = tricross(linevec, linevec, nv0) / seglen2;
+            if (((foot.x < nv0.x && foot.x < (x1 - x0 - nv0.x)) || (foot.x > nv0.x && foot.x > (x1 - ix0 - nv0.x))) ||
+                ((foot.y < nv0.y && foot.y < (y1 - y0 - nv0.y)) || (foot.y > nv0.y && foot.y > (y1 - y0 - nv0.y))))
+            {
+
+                /*double d2lsign = copysign(1.0, d2l);
+                if (d2lsign != convexconcave)
+                    continue;*/ // to skip, as the node with a normal vector's foot situated within the segment will be processed in the between-eps iteration
+                d2l = copysign(
+                    d2node,
+                    d2l);
+            }
+            setPixel(nv0.x, nv0.y, d2l);
+            // compute nextNode!!!
+        }
+    }
+    else
+    {
+        // TODO:
+        // compute nextNode, and 
+        // now as I know that the first endpoint is on the grid line, should I proceed without a special treatment for the first endpoind?
+    }
     // compute pixels between endpoints
     // 
     while ((linevec.x > 0 && nextnode.x < ix1) || (linevec.x < 0 && nextnode.x > ix1) ||
@@ -320,6 +322,33 @@ void boundaryLine(double x0, double y0, double x1, double y1)
             }
         }
         //std::cout << "Next node: " << nextnode.x << " " << nextnode.y << std::endl;
+    }
+    // 2nd endpoint
+    if (x1 != ix1 && y1 != iy1)
+    {
+        for (int j = 0; j < 2; ++j)
+            for (int i = 0; i < 2; ++i)
+            {
+                double d2node = (x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j);
+                if (d2node >= 1.0)
+                    continue;
+                vec nv1{ (ix1 + i - x1), (iy1 + j - y1) }; // 2D vector from {ix1 + i, iy1 + j} to {x1,y1}
+                // cross product, the (signed) area and the distance to the line (linevec/seglen is unit vector)
+                double d2l = cross(nv1, linevec) / seglen;
+                // triple cross product and the vector to nv0 foot to linevec wrt {ix0+i,iy0+j}
+                vec foot = tricross(linevec, linevec, nv1) / seglen2;
+                if (((foot.x < (x1 - ix1 - i) && foot.x < (x0 - ix1 - i)) || (foot.x > (x1 - ix1 - i) && foot.x > (x0 - ix1 - i))) ||
+                    ((foot.y < (y1 - iy1 - j) && foot.y < (y0 - iy1 - j)) || (foot.y > (y1 - iy1 - j) && foot.y > (y0 - iy1 - j))))
+                {
+                    /*double d2lsign = copysign(1.0, d2l);
+                    if (d2lsign != convexconcave)
+                        continue;*/
+                    d2l = copysign(
+                        sqrt((x0 - ix0 - i) * (x0 - ix0 - i) + (y0 - iy0 - j) * (y0 - iy0 - j)),
+                        d2l);
+                }
+                setPixel(ix1 + i, iy1 + j, d2l);
+            }
     }
     priorlinevec = linevec;
 }
