@@ -18,7 +18,7 @@ void setPixel(int x, int y, double Y = 0)
     }
 }
 
-enum celledge { LEFT, BOTTOM, RIGHT, TOP };
+enum celledge { LEFT, BOTTOM, RIGHT, TOP, BINGO };
 struct inode { int x; int y; celledge entry; }; // left/bottom coords + the border where the line enters the cell
 struct vec
 {
@@ -89,18 +89,29 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 }
                 setPixel(ix0 + i, iy0 + j, d2l);
             }
-
-        if (linevec.x != 0 && abs(linevec.x) > abs(linevec.y))
+        // contour line can be 'steep', or not 'steep', and still cross any type gridline, horz or vert
+        // add 
+        if (linevec.x != 0)
         {
             // check if left boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
             if ((x1 < ix0 && ix0 < x0))
             {
                 yintersect = linevec.y / linevec.x * (ix0 - x0) + y0;
                 xintersect = ix0;
-                if (yintersect >= iy0 && yintersect <= iy0 + 1)
+                if (yintersect > iy0 && yintersect < iy0 + 1)
                 {
                     intersectfound = true;
                     nextnode = { ix0 - 1, iy0, RIGHT };
+                }
+                if (yintersect = iy0)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 - 1, iy0, BINGO };
+                }
+                if (yintersect = iy0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 - 1, iy0 + 1, BINGO };
                 }
             }
             // check if right boundary is crossed
@@ -113,6 +124,16 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                     intersectfound = true;
                     nextnode = { ix0 + 1, iy0, LEFT };
                 }
+                if (yintersect = iy0)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 + 1, iy0, BINGO };
+                }
+                if (yintersect = iy0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 + 1, iy0 + 1, BINGO };
+                }
             }
             if (!intersectfound)
             {
@@ -121,7 +142,7 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 nextnode = { WIDTH, HEIGHT };
             }
         }
-        if (linevec.y != 0 && abs(linevec.y) > abs(linevec.x))
+        if (linevec.y != 0)
         {
             // check if bottom boundary is crossed EXCEPTIONAL CONDITION STRICTLY LESS !!!!!!!!!!!
             if ((y1 < iy0 && iy0 < y0))
@@ -132,6 +153,16 @@ void boundaryLine(double x0, double y0, double x1, double y1)
                 {
                     intersectfound = true;
                     nextnode = { ix0, iy0 - 1, TOP };
+                }
+                if (xintersect = ix0)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0, iy0, BINGO };
+                }
+                if (xintersect = ix0 + 1)
+                {
+                    intersectfound = true;
+                    nextnode = { ix0 + 1, iy0, BINGO };
                 }
             }
             // check if top boundary is crossed
@@ -364,12 +395,12 @@ int main()
     /*boundaryLine(15.25, 5.25, 5.25, 15.25);
     boundaryLine(5.25, 15.25, 15.25, 25.25);
     boundaryLine(15.25, 25.25, 25.25, 15.25);
-    boundaryLine(25.25, 15.25, 15.25, 5.25);
+    boundaryLine(25.25, 15.25, 15.25, 5.25);*/
 
-    boundaryLine(15.25, 5.25, 5.25, 15.25);
-    boundaryLine(5.25, 15.25, 15.75, 25.75);
-    boundaryLine(15.75, 25.75, 25.5, 15.25);
-    boundaryLine(25.5, 15.25, 15.25, 5.25);*/
+    //boundaryLine(15.33, 5.25, 5.25, 15.25);
+    boundaryLine(5.25, 15.25, 15.75, 25.75); // 'nextNode' from ep not found: line is 45 deg and 1st intersect coincides with a NODE
+    //boundaryLine(15.75, 25.75, 25.5, 15.25);
+    //boundaryLine(25.5, 15.25, 15.33, 5.25);
 
     /*boundaryLine(1.2, 1.2, 30.2, 1.2);
     boundaryLine(30.2, 1.2, 30.2, 30.2);
@@ -389,13 +420,13 @@ int main()
     //boundaryLine(50.964843750000000, 64.992187500000000, 50.574218750000000, 64.089843750000000);
 
     double w = WIDTH, h = HEIGHT;
-    boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8); //
+    /*boundaryLine(3 * w / 8, 6 * h / 8, 3 * w / 8, 2 * h / 8); //
     //boundaryLine(3 * w / 8 - 0.00001, 6 * h / 8, 3 * w / 8, 2 * h / 8);
     boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8); //
     boundaryLine(5 * w / 8, 2 * h / 8, 5 * w / 8, 6 * h / 8); //
     //boundaryLine(5 * w / 8 - 0.00001, 2 * h / 8, 5 * w / 8, 6 * h / 8);
     boundaryLine(5 * w / 8, 6 * h / 8, 4 * w / 8, 3 * h / 8);
-    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);/**/
+    boundaryLine(4 * w / 8, 3 * h / 8, 3 * w / 8, 6 * h / 8);*/
 
     /*boundaryLine(3 * w / 8, 2 * h / 8, 5 * w / 8, 2 * h / 8);
     boundaryLine(5 * w / 8, 2 * h / 8, 4 * w / 8/* - 0.00001* /, 6 * h / 8);
