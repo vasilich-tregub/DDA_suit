@@ -31,6 +31,11 @@ int main()
 		nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0
 	);
 
+	if (hr = HRESULT_FROM_WIN32(GetLastError()))
+	{
+		std::cout << "hr=" << std::hex << hr << std::endl;
+		return hr;
+	}
 	if (SUCCEEDED(hr))
 	{
 		/*hr = wicFactory->CreateDecoderFromFilename(
