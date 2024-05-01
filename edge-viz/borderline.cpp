@@ -55,9 +55,8 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 	bool swapped = false;
 	bool backward = false;
 
-	double yisect;
+	double yisect, cosgrad;
 	double gradient = dy / dx;
-	double cosgrad = 1.0 / sqrt(1.0 + gradient * gradient);
 
 	int ix1, iy1, ix2;
 
@@ -75,12 +74,14 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		ix1 = static_cast<int>(std::floor(x1));
 		ix2 = static_cast<int>(std::ceil(x2));
 		yisect = y1 + gradient * fpart(x1); // y axis intersect by line @ix1
+		cosgrad = -1.0 / sqrt(1.0 + gradient * gradient);
 	}
 	else
 	{
 		ix1 = static_cast<int>(std::ceil(x1));
 		ix2 = static_cast<int>(std::floor(x2));
 		yisect = y1 + gradient * rfpart(x1); // y axis intersect by line @ix1
+		cosgrad = 1.0 / sqrt(1.0 + gradient * gradient);
 	}
 
 	iy1 = static_cast<int>(yisect);
@@ -95,8 +96,8 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		{
 			if (swapped)
 			{
-				setpixel(va, static_cast<int>(intery), x, fpart(intery) * cosgrad);
-				setpixel(va, static_cast<int>(intery) + 1, x, -rfpart1_0(intery) * cosgrad);
+				setpixel(va, static_cast<int>(intery), x, -fpart(intery) * cosgrad);
+				setpixel(va, static_cast<int>(intery) + 1, x, rfpart1_0(intery) * cosgrad);
 			}
 			else
 			{
@@ -112,8 +113,8 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		{
 			if (swapped)
 			{
-				setpixel(va, static_cast<int>(intery), x, fpart(intery) * cosgrad);
-				setpixel(va, static_cast<int>(intery) + 1, x, -rfpart1_0(intery * cosgrad));
+				setpixel(va, static_cast<int>(intery), x, -fpart(intery) * cosgrad);
+				setpixel(va, static_cast<int>(intery) + 1, x, rfpart1_0(intery) * cosgrad);
 			}
 			else
 			{
