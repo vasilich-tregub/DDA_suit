@@ -15,7 +15,10 @@ struct array2D
 	T& operator() (int col, int row)
 	{
 		if (col < 0 || row < 0 || col >= width_ || row >= height_)
+		{
 			throw std::invalid_argument("invalid index");
+			col = (int)width_ - 1; row = (int)height_ - 1;
+		}
 		return buffer_[col + row * width_];
 	};
 private:
@@ -24,4 +27,4 @@ private:
 	std::vector<T> buffer_;
 };
 
-void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld);
+void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld);

@@ -3,31 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 
-template <typename T>
-struct array2D
-{
-	array2D(std::vector<T>& buffer, std::size_t W, std::size_t H)
-		: buffer_(buffer), width_(W), height_(H)
-	{ 
-		if (buffer.size() < W * H)
-		{
-			throw std::invalid_argument("buffer too short");
-		}
-	}
-	T& operator() (int col, int row) 
-	{ 
-		if (col < 0 || row < 0 || col >= width_ || row >= height_)
-		{
-			throw std::invalid_argument("invalid index");
-			col = width_ - 1; row = height_ - 1;
-		}
-		return buffer_[col + row * width_]; 
-	};
-private:
-	std::size_t width_;
-	std::size_t height_;
-	std::vector<T> buffer_;
-};
+#include "borderpolyline.h"
 
 template <typename T>
 struct V2D
@@ -61,13 +37,12 @@ static double rfpart1_0(double x)
 	return 1.0 - x + std::floor(x);
 }
 
-static void setpixel(std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld, int x, int y, double c)
+static void setpixel(std::vector<std::pair<std::pair<int, int>, double>>& va, int x, int y, double c)
 {
 	va.emplace_back(std::make_pair(std::make_pair(x, y), c));
-	fld(x, y) = c;
 }
 
-void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld)
+void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld)
 {
 	double dx = x2 - x1;
 	double dy = y2 - y1;
@@ -109,55 +84,64 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 	double intery = yisect;
 
 	// EP1
-	if (backward)
-	{
-		if (swapped)
-		{
-			setpixel(va, fld, static_cast<int>(intery), ix1, -fpart(intery) * cosgrad);
-			setpixel(va, fld, static_cast<int>(intery) + 1, ix1, rfpart1_0(intery) * cosgrad);
-		}
-		else
-		{
-			setpixel(va, fld, ix1, static_cast<int>(intery), fpart(intery) * cosgrad);
-			setpixel(va, fld, ix1, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
-		}
-		intery += gradient;
-	}
-	else
-	{
-		/*V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
+		V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
 		auto proj = linevec * eppxl;
-		setpixel(va, fld, -ix1, -static_cast<int>(intery), proj);
+		setpixel(va, -ix1, -static_cast<int>(intery), proj);
 		eppxl.y += 1.0;
 		proj = linevec * eppxl;
-		setpixel(va, fld, -ix1, -static_cast<int>(intery) - 1, proj);*/
+		setpixel(va, -ix1, -static_cast<int>(intery) - 1, proj);
+		int iintery = static_cast<int>(intery);
 		if (swapped)
 		{
-			setpixel(va, fld, static_cast<int>(intery), ix1, -fpart(intery) * cosgrad);
-			setpixel(va, fld, static_cast<int>(intery) + 1, ix1, rfpart1_0(intery) * cosgrad);
+			V2D<double> linevec(y2 - y1, x2 - x1), eppxl(iy1 - y1, ix1 - x1);
+			auto proj = linevec * eppxl;
+			if (proj >= 0)
+			{
+				setpixel(va, iintery, ix1, -fpart(intery) * cosgrad);
+				fld(iintery, ix1) = -fpart(intery) * cosgrad;
+			}
+			eppxl.y += 1.0;
+			proj = linevec * eppxl;
+			if (proj >= 0)
+			{
+				setpixel(va, iintery + 1, ix1, rfpart1_0(intery) * cosgrad);
+				fld(iintery + 1, ix1) = -fpart(intery) * cosgrad;
+			}
 		}
 		else
 		{
-			setpixel(va, fld, ix1, static_cast<int>(intery), fpart(intery) * cosgrad);
-			setpixel(va, fld, ix1, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
+			V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
+			auto proj = linevec * eppxl;
+			if (proj >= 0)
+			{
+				setpixel(va, ix1, iintery, fpart(intery) * cosgrad);
+				fld(ix1, iintery) = fpart(intery) * cosgrad;
+			}
+			eppxl.y += 1.0;
+			proj = linevec * eppxl;
+			if (proj >= 0)
+			{
+				setpixel(va, ix1, iintery + 1, -rfpart1_0(intery) * cosgrad);
+				fld(ix1, iintery + 1) = fpart(intery) * cosgrad;
+			}
 		}
 		intery += gradient;
-	}
 
 	// Add all the points between the endpoints /// SET PXL VALUE SIGNS!!!
 	if (backward)
 	{
 		for (int x = ix1 - 1; x >= ix2 + 1; --x)
 		{
+			int iintery = static_cast<int>(intery);
 			if (swapped)
 			{
-				setpixel(va, fld, static_cast<int>(intery), x, -fpart(intery) * cosgrad);
-				setpixel(va, fld, static_cast<int>(intery) + 1, x, rfpart1_0(intery) * cosgrad);
+				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
+				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
 			}
 			else
 			{
-				setpixel(va, fld, x, static_cast<int>(intery), fpart(intery) * cosgrad);
-				setpixel(va, fld, x, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
+				setpixel(va, x, iintery, fpart(intery) * cosgrad);
+				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
 			}
 			intery += gradient;
 		}
@@ -166,47 +150,65 @@ void drawLine(double x1, double y1, double x2, double y2, std::vector<std::pair<
 	{
 		for (int x = ix1 + 1; x <= ix2 - 1; ++x)
 		{
+			int iintery = static_cast<int>(intery);
 			if (swapped)
 			{
-				setpixel(va, fld, static_cast<int>(intery), x, -fpart(intery) * cosgrad);
-				setpixel(va, fld, static_cast<int>(intery) + 1, x, rfpart1_0(intery) * cosgrad);
+				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
+				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
 			}
 			else
 			{
-				setpixel(va, fld, x, static_cast<int>(intery), fpart(intery) * cosgrad);
-				setpixel(va, fld, x, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
+				setpixel(va, x, iintery, fpart(intery) * cosgrad);
+				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
 			}
 			intery += gradient;
 		}
 	}
 
 	// EP2
-	if (backward)
+	iintery = static_cast<int>(intery);
+	int iy2 = static_cast<int>(y2); ///???
+
+	V2D<double> linevecc(x1 - x2, y1 - y2), eppxlc(ix2 - x2, iy2 - y2);
+	proj = linevecc * eppxlc;
+	setpixel(va, -ix2, -static_cast<int>(intery), proj);
+	eppxlc.y += 1.0;
+	proj = linevecc * eppxlc;
+	setpixel(va, -ix2, -static_cast<int>(intery) - 1, proj);
+
+	if (swapped)
 	{
-		if (swapped)
+		V2D<double> linevec(y1 - y2, x1 - x2), eppxl(iy2 - y2, ix2 - x2);
+		auto proj = linevec * eppxl;
+		if (proj >= 0)
 		{
-			setpixel(va, fld, static_cast<int>(intery), ix2, -fpart(intery) * cosgrad);
-			setpixel(va, fld, static_cast<int>(intery) + 1, ix2, rfpart1_0(intery) * cosgrad);
+			setpixel(va, iintery, ix2, -fpart(intery) * cosgrad);
+			fld(iintery, ix2) = -fpart(intery) * cosgrad;
 		}
-		else
+		eppxl.y += 1.0;
+		proj = linevec * eppxl;
+		if (proj >= 0)
 		{
-			setpixel(va, fld, ix2, static_cast<int>(intery), fpart(intery) * cosgrad);
-			setpixel(va, fld, ix2, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
+			setpixel(va, iintery + 1, ix2, rfpart1_0(intery) * cosgrad);
+			fld(iintery + 1, ix2) = -fpart(intery) * cosgrad;
 		}
-		intery += gradient;
 	}
 	else
 	{
-		if (swapped)
+		V2D<double> linevec(x1 - x2, y1 - y2), eppxl(ix2 - x2, iy2 - y2);
+		auto proj = linevec * eppxl;
+		if (proj >= 0)
 		{
-			setpixel(va, fld, static_cast<int>(intery), ix2, -fpart(intery) * cosgrad);
-			setpixel(va, fld, static_cast<int>(intery) + 1, ix2, rfpart1_0(intery) * cosgrad);
+			setpixel(va, ix2, iintery, fpart(intery) * cosgrad);
+			fld(ix2, iintery) = fpart(intery) * cosgrad;
 		}
-		else
+		eppxl.y += 1.0;
+		proj = linevec * eppxl;
+		if (proj >= 0)
 		{
-			setpixel(va, fld, ix2, static_cast<int>(intery), fpart(intery) * cosgrad);
-			setpixel(va, fld, ix2, static_cast<int>(intery) + 1, -rfpart1_0(intery) * cosgrad);
+			setpixel(va, ix2, iintery + 1, -rfpart1_0(intery) * cosgrad);
+			fld(ix2, iintery + 1) = fpart(intery) * cosgrad;
 		}
-		intery += gradient;
 	}
+	intery += gradient;
 }

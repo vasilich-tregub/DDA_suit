@@ -22,9 +22,9 @@
 #include <pango-1.0/pango/pangocairo.h>
 #include <cairo/cairo-ft.h>
 
-std::string textRun = u8" M&S";
+std::string textRun = u8"8";
 const std::string fontPath = "./ARIAL.TTF";
-const int fontSize = 64;
+const int fontSize = 24;
 
 constexpr int WIDTH = 160;
 constexpr int HEIGHT = 160;
@@ -419,18 +419,20 @@ int main()
 
     std::cout << path->num_data << '\n';
 
-    double xbegin, ybegin, x, y;
+    double xbegin, ybegin, x, y, len2;
 
     for (int i = 0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
         switch (data->header.type) {
         case CAIRO_PATH_MOVE_TO:
-            std::cout << data[1].point.x << ", " << data[1].point.y << '\n';
+            std::cout << "MOVE_TO " << data[1].point.x << ", " << data[1].point.y << '\n';
             x = xbegin = data[1].point.x;
             y = ybegin = data[1].point.y + HEIGHT/2;
             break;
         case CAIRO_PATH_LINE_TO:
             boundaryLine(x, y, data[1].point.x, data[1].point.y + HEIGHT/2);
+            len2 = (x - data[1].point.x) * (x - data[1].point.x) + (y - HEIGHT/2 - data[1].point.y) * (y - HEIGHT/2 - data[1].point.y);
+            std::cout << data[1].point.x << ", " << data[1].point.y << " len^2 = " << len2 << '\n';
             x = data[1].point.x;
             y = data[1].point.y + HEIGHT/2;
             break;
