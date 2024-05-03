@@ -21,6 +21,7 @@ struct array2D
 		}
 		return buffer_[col + row * width_];
 	};
+	std::vector<T> buffer() { return buffer_; };
 private:
 	std::size_t width_;
 	std::size_t height_;

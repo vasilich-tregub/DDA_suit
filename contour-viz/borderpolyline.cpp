@@ -105,7 +105,7 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			if (proj >= 0)
 			{
 				setpixel(va, iintery + 1, ix1, rfpart1_0(intery) * cosgrad);
-				fld(iintery + 1, ix1) = -fpart(intery) * cosgrad;
+				fld(iintery + 1, ix1) = rfpart(intery) * cosgrad;
 			}
 		}
 		else
@@ -122,7 +122,7 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			if (proj >= 0)
 			{
 				setpixel(va, ix1, iintery + 1, -rfpart1_0(intery) * cosgrad);
-				fld(ix1, iintery + 1) = fpart(intery) * cosgrad;
+				fld(ix1, iintery + 1) = -rfpart1_0(intery) * cosgrad;
 			}
 		}
 		intery += gradient;
@@ -136,12 +136,16 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			if (swapped)
 			{
 				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
+				fld(iintery, x) = -fpart(intery) * cosgrad;
 				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
+				fld(iintery + 1, x) = rfpart1_0(intery) * cosgrad;
 			}
 			else
 			{
 				setpixel(va, x, iintery, fpart(intery) * cosgrad);
+				fld(x, iintery) = fpart(intery) * cosgrad;
 				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
+				fld(x, iintery + 1) = -rfpart1_0(intery) * cosgrad;
 			}
 			intery += gradient;
 		}
@@ -154,12 +158,16 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			if (swapped)
 			{
 				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
+				fld(iintery, x) = -fpart(intery) * cosgrad;
 				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
+				fld(iintery + 1, x) = rfpart1_0(intery) * cosgrad;
 			}
 			else
 			{
 				setpixel(va, x, iintery, fpart(intery) * cosgrad);
+				fld(x, iintery) = fpart(intery) * cosgrad;
 				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
+				fld(x, iintery + 1) = -rfpart1_0(intery) * cosgrad;
 			}
 			intery += gradient;
 		}
@@ -207,7 +215,7 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		if (proj >= 0)
 		{
 			setpixel(va, ix2, iintery + 1, -rfpart1_0(intery) * cosgrad);
-			fld(ix2, iintery + 1) = fpart(intery) * cosgrad;
+			fld(ix2, iintery + 1) = -rfpart(intery) * cosgrad;
 		}
 	}
 	intery += gradient;
