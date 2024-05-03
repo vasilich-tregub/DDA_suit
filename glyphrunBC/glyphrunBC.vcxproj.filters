@@ -18,9 +18,15 @@
     <ClCompile Include="glyphrunBC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="borderpolyline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="borderpolyline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

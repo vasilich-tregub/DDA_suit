@@ -74,9 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="borderpolyline.cpp" />
     <ClCompile Include="glyphrunBC.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="borderpolyline.h" />
     <ClInclude Include="display.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
