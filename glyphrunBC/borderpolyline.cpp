@@ -54,6 +54,10 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 
 	double dx = x2 - x1;
 	double dy = y2 - y1;
+	if (dx == 0 && dy == 0)
+	{
+		return;
+	}
 	if (std::abs(dx) < std::abs(dy))
 	{
 		std::swap(x1, y1);

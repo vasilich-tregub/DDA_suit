@@ -24,9 +24,9 @@
 
 #include "borderpolyline.h"
 
-std::string textRun = u8"|-|";
+std::string textRun = u8"8.8.8";
 const std::string fontPath = "./ARIAL.TTF";
-const int fontSize = 24;
+const int fontSize = 72;
 
 int main()
 {
@@ -128,6 +128,7 @@ int main()
             break;
         case CAIRO_PATH_CLOSE_PATH:
             drawEdge(x, y, xbegin, ybegin, va, fld);
+            va.clear();
             std::cout << "close!\n";
             break;
         }
