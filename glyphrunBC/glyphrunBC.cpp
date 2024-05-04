@@ -37,10 +37,11 @@ int main()
     array2D<double> fld(datavec, WIDTH, HEIGHT);
 
     std::vector<std::pair<std::pair<int, int>, double>> va;
+    std::vector<std::pair<double, double>> vertices;
 
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, WIDTH, HEIGHT);
     cairo_t* cr = cairo_create(surface);
-    //cairo_set_tolerance(cr, 0.1);
+    cairo_set_tolerance(cr, 0.5);
     cairo_matrix_t matrix{ 1, 0, 0, 1, 0, HEIGHT / 2 };
     cairo_transform(cr, &matrix);
 
@@ -115,20 +116,24 @@ int main()
             std::cout << "MOVE_TO " << data[1].point.x << ", " << data[1].point.y << '\n';
             x = xbegin = data[1].point.x;
             y = ybegin = data[1].point.y + HEIGHT/2;
+            vertices.emplace_back(std::make_pair(x, y));
             break;
         case CAIRO_PATH_LINE_TO:
             drawEdge(x, y, data[1].point.x, data[1].point.y + HEIGHT/2, va, fld);
             len2 = (x - data[1].point.x) * (x - data[1].point.x) + (y - HEIGHT/2 - data[1].point.y) * (y - HEIGHT/2 - data[1].point.y);
-            std::cout << data[1].point.x << ", " << data[1].point.y << " len^2 = " << len2 << '\n';
+            //std::cout << data[1].point.x << ", " << data[1].point.y << " len^2 = " << len2 << '\n';
             x = data[1].point.x;
             y = data[1].point.y + HEIGHT/2;
+            vertices.emplace_back(std::make_pair(x, y));
             break;
         case CAIRO_PATH_CURVE_TO:
             std::cout << "curve!\n";
             break;
         case CAIRO_PATH_CLOSE_PATH:
             drawEdge(x, y, xbegin, ybegin, va, fld);
+            //closureBorderline(vertices, fld);
             va.clear();
+            vertices.clear();
             std::cout << "close!\n";
             break;
         }
@@ -148,11 +153,11 @@ int main()
 
     display(WIDTH, HEIGHT, fld.buffer().data(), L"glyphrunBC.png");
     double fldvalsign = 1.0;
-    for (int Y = 0; Y < HEIGHT; ++Y)
+    for (int X = 0; X < WIDTH; ++X)
     {
-        for (int X = 0; X < WIDTH; ++X)
+        for (int Y = 0; Y < WIDTH; ++Y)
         {
-            if (!std::isnan(fld(X, Y)) && fld(X, Y) * fldvalsign <= 0)
+            if (!std::isnan(fld(X, Y)) && fld(X, Y) * fldvalsign < 0)
             {
                 fldvalsign = -fldvalsign;
             }

@@ -29,3 +29,5 @@ private:
 };
 
 void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld);
+
+void closureBorderline(std::vector<std::pair<double, double>>& vertices, array2D<double>& fld);

@@ -37,9 +37,12 @@ static double rfpart1_0(double x)
 	return 1.0 - x + std::floor(x);
 }
 
-static void setpixel(std::vector<std::pair<std::pair<int, int>, double>>& va, int x, int y, double c)
+static void setpixel(int x, int y, double c, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld)
 {
 	va.emplace_back(std::make_pair(std::make_pair(x, y), c));
+	auto f = fld(x, y);
+	if (std::isnan(f) || (f >= 0 && c >= 0 && f < c) || (f <= 0 && c <= 0 && f > c))
+		fld(x, y) = c;
 }
 
 void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<std::pair<int, int>, double>>& va, array2D<double>& fld)
@@ -89,48 +92,63 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 	double intery = yisect;
 
 	// EP1
-		V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
+	V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
+	auto proj = linevec * eppxl;
+	int iintery = static_cast<int>(intery);
+	if (swapped)
+	{
+		V2D<double> linevec(y2 - y1, x2 - x1), eppxl(iy1 - y1, ix1 - x1);
 		auto proj = linevec * eppxl;
-		setpixel(va, -ix1, -static_cast<int>(intery), proj);
-		eppxl.y += 1.0;
-		proj = linevec * eppxl;
-		setpixel(va, -ix1, -static_cast<int>(intery) - 1, proj);
-		int iintery = static_cast<int>(intery);
-		if (swapped)
+		if (proj >= 0)
 		{
-			V2D<double> linevec(y2 - y1, x2 - x1), eppxl(iy1 - y1, ix1 - x1);
-			auto proj = linevec * eppxl;
-			if (proj >= 0)
-			{
-				setpixel(va, iintery, ix1, -fpart(intery) * cosgrad);
-				fld(iintery, ix1) = -fpart(intery) * cosgrad;
-			}
-			eppxl.y += 1.0;
-			proj = linevec * eppxl;
-			if (proj >= 0)
-			{
-				setpixel(va, iintery + 1, ix1, rfpart1_0(intery) * cosgrad);
-				fld(iintery + 1, ix1) = rfpart(intery) * cosgrad;
-			}
+			setpixel(iintery, ix1, -fpart(intery) * cosgrad, va, fld);
 		}
 		else
 		{
-			V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
-			auto proj = linevec * eppxl;
-			if (proj >= 0)
-			{
-				setpixel(va, ix1, iintery, fpart(intery) * cosgrad);
-				fld(ix1, iintery) = fpart(intery) * cosgrad;
-			}
-			eppxl.y += 1.0;
-			proj = linevec * eppxl;
-			if (proj >= 0)
-			{
-				setpixel(va, ix1, iintery + 1, -rfpart1_0(intery) * cosgrad);
-				fld(ix1, iintery + 1) = -rfpart1_0(intery) * cosgrad;
-			}
+			auto dist = sqrt(iintery - y1) * (iintery - y1) + (ix1 - x1) * (ix1 - x1);
+			dist = copysign(dist, -fpart(intery) * cosgrad);
+			setpixel(iintery, ix1, dist, va, fld);
 		}
-		intery += gradient;
+		eppxl.y += 1.0;
+		proj = linevec * eppxl;
+		if (proj >= 0)
+		{
+			setpixel(iintery + 1, ix1, rfpart1_0(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery + 1 - y1) * (iintery + 1 - y1) + (ix1 - x1) * (ix1 - x1);
+			dist = copysign(dist, rfpart1_0(intery) * cosgrad);
+		}
+	}
+	else
+	{
+		V2D<double> linevec(x2 - x1, y2 - y1), eppxl(ix1 - x1, iy1 - y1);
+		auto proj = linevec * eppxl;
+		if (proj >= 0)
+		{
+			setpixel(ix1, iintery, fpart(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery - y1) * (iintery - y1) + (ix1 - x1) * (ix1 - x1);
+			dist = copysign(dist, fpart(intery) * cosgrad);
+			setpixel(ix1, iintery, dist, va, fld);
+		}
+		eppxl.y += 1.0;
+		proj = linevec * eppxl;
+		if (proj >= 0)
+		{
+			setpixel(ix1, iintery + 1, -rfpart1_0(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery + 1 - y1) * (iintery + 1 - y1) + (ix1 - x1) * (ix1 - x1);
+			dist = copysign(dist, -rfpart1_0(intery) * cosgrad);
+			setpixel(ix1, iintery, dist, va, fld);
+		}
+	}
+	intery += gradient;
 
 	// Add all the points between the endpoints /// SET PXL VALUE SIGNS!!!
 	if (backward)
@@ -140,17 +158,13 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			int iintery = static_cast<int>(intery);
 			if (swapped)
 			{
-				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
-				fld(iintery, x) = -fpart(intery) * cosgrad;
-				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
-				fld(iintery + 1, x) = rfpart1_0(intery) * cosgrad;
+				setpixel(iintery, x, -fpart(intery) * cosgrad, va, fld);
+				setpixel(iintery + 1, x, rfpart1_0(intery) * cosgrad, va, fld);
 			}
 			else
 			{
-				setpixel(va, x, iintery, fpart(intery) * cosgrad);
-				fld(x, iintery) = fpart(intery) * cosgrad;
-				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
-				fld(x, iintery + 1) = -rfpart1_0(intery) * cosgrad;
+				setpixel(x, iintery, fpart(intery) * cosgrad, va, fld);
+				setpixel(x, iintery + 1, -rfpart1_0(intery) * cosgrad, va, fld);
 			}
 			intery += gradient;
 		}
@@ -162,17 +176,13 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 			int iintery = static_cast<int>(intery);
 			if (swapped)
 			{
-				setpixel(va, iintery, x, -fpart(intery) * cosgrad);
-				fld(iintery, x) = -fpart(intery) * cosgrad;
-				setpixel(va, iintery + 1, x, rfpart1_0(intery) * cosgrad);
-				fld(iintery + 1, x) = rfpart1_0(intery) * cosgrad;
+				setpixel(iintery, x, -fpart(intery) * cosgrad, va, fld);
+				setpixel(iintery + 1, x, rfpart1_0(intery) * cosgrad, va, fld);
 			}
 			else
 			{
-				setpixel(va, x, iintery, fpart(intery) * cosgrad);
-				fld(x, iintery) = fpart(intery) * cosgrad;
-				setpixel(va, x, iintery + 1, -rfpart1_0(intery) * cosgrad);
-				fld(x, iintery + 1) = -rfpart1_0(intery) * cosgrad;
+				setpixel(x, iintery, fpart(intery) * cosgrad, va, fld);
+				setpixel(x, iintery + 1, -rfpart1_0(intery) * cosgrad, va, fld);
 			}
 			intery += gradient;
 		}
@@ -184,10 +194,6 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 
 	V2D<double> linevecc(x1 - x2, y1 - y2), eppxlc(ix2 - x2, iy2 - y2);
 	proj = linevecc * eppxlc;
-	setpixel(va, -ix2, -static_cast<int>(intery), proj);
-	eppxlc.y += 1.0;
-	proj = linevecc * eppxlc;
-	setpixel(va, -ix2, -static_cast<int>(intery) - 1, proj);
 
 	if (swapped)
 	{
@@ -195,15 +201,25 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		auto proj = linevec * eppxl;
 		if (proj >= 0)
 		{
-			setpixel(va, iintery, ix2, -fpart(intery) * cosgrad);
-			fld(iintery, ix2) = -fpart(intery) * cosgrad;
+			setpixel(iintery, ix2, -fpart(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery - y2) * (iintery - y2) + (ix2 - x2) * (ix2 - x2);
+			dist = copysign(dist, -fpart(intery) * cosgrad);
+			setpixel(iintery, ix2, dist, va, fld);
 		}
 		eppxl.y += 1.0;
 		proj = linevec * eppxl;
 		if (proj >= 0)
 		{
-			setpixel(va, iintery + 1, ix2, rfpart1_0(intery) * cosgrad);
-			fld(iintery + 1, ix2) = -fpart(intery) * cosgrad;
+			setpixel(iintery + 1, ix2, rfpart1_0(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery + 1 - y2) * (iintery + 1 - y2) + (ix2 - x2) * (ix2 - x2);
+			dist = copysign(dist, rfpart1_0(intery) * cosgrad);
+			setpixel(iintery + 1, ix2, dist, va, fld);
 		}
 	}
 	else
@@ -212,16 +228,43 @@ void drawEdge(double x1, double y1, double x2, double y2, std::vector<std::pair<
 		auto proj = linevec * eppxl;
 		if (proj >= 0)
 		{
-			setpixel(va, ix2, iintery, fpart(intery) * cosgrad);
-			fld(ix2, iintery) = fpart(intery) * cosgrad;
+			setpixel(ix2, iintery, fpart(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery - y2) * (iintery - y2) + (ix2 - x2) * (ix2 - x2);
+			dist = copysign(dist, fpart(intery) * cosgrad);
+			setpixel(ix2, iintery, dist, va, fld);
 		}
 		eppxl.y += 1.0;
 		proj = linevec * eppxl;
 		if (proj >= 0)
 		{
-			setpixel(va, ix2, iintery + 1, -rfpart1_0(intery) * cosgrad);
-			fld(ix2, iintery + 1) = -rfpart(intery) * cosgrad;
+			setpixel(ix2, iintery + 1, -rfpart1_0(intery) * cosgrad, va, fld);
+		}
+		else
+		{
+			auto dist = sqrt(iintery + 1 - y2) * (iintery + 1 - y2) + (ix2 - x2) * (ix2 - x2);
+			dist = copysign(dist, -rfpart1_0(intery) * cosgrad);
+			setpixel(ix2, iintery + 1, dist, va, fld);
 		}
 	}
 	intery += gradient;
+}
+
+void closureBorderline(std::vector<std::pair<double, double>>& vertices, array2D<double>& fld)
+{
+	for (auto vertex : vertices)
+	{
+		double x = vertex.first, y = vertex.second;
+		int ix = static_cast<int>(x), iy = static_cast<int>(y);
+		if (std::isnan(fld(ix, iy)))
+			fld(ix, iy) = -sqrt((ix - x) * (ix - x) + (iy - y) * (iy - y));
+		if (std::isnan(fld(ix + 1, iy)))
+			fld(ix + 1, iy) = -sqrt((ix + 1 - x) * (ix + 1 - x) + (iy - y) * (iy - y));
+		if (std::isnan(fld(ix, iy + 1)))
+			fld(ix, iy + 1) = -sqrt((ix - x) * (ix - x) + (iy + 1 - y) * (iy + 1 - y));
+		if (std::isnan(fld(ix + 1, iy + 1)))
+			fld(ix + 1, iy + 1) = -sqrt((ix + 1 - x) * (ix + 1 - x) + (iy + 1 - y) * (iy + 1 - y));
+	}
 }
