@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "edge-viz", "edge-viz\edge-v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "contour-viz", "contour-viz\contour-viz.vcxproj", "{A6D0EAE8-9366-4110-98AF-DB802E797A8A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "signed-distance", "signed-distance\signed-distance.vcxproj", "{42309DBC-C107-4F63-A820-6610021F400D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{A6D0EAE8-9366-4110-98AF-DB802E797A8A}.Release|x64.Build.0 = Release|x64
 		{A6D0EAE8-9366-4110-98AF-DB802E797A8A}.Release|x86.ActiveCfg = Release|Win32
 		{A6D0EAE8-9366-4110-98AF-DB802E797A8A}.Release|x86.Build.0 = Release|Win32
+		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x64.ActiveCfg = Debug|x64
+		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x64.Build.0 = Debug|x64
+		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x86.ActiveCfg = Debug|Win32
+		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x86.Build.0 = Debug|Win32
+		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x64.ActiveCfg = Release|x64
+		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x64.Build.0 = Release|x64
+		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x86.ActiveCfg = Release|Win32
+		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
