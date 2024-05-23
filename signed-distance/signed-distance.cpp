@@ -25,13 +25,7 @@ int main()
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_A8, (int) width, (int) height);
     cairo_t* cr = cairo_create(surface);
 
-    for (int Y = 0; Y < height; ++Y)
-    {
-        for (int X = 0; X < width; ++X)
-        {
-            fld[Y * width + X] = SHRT_MAX;
-        }
-    }
+    fld.assign(fld.size(), SHRT_MAX);
 
     cairo_arc(cr, 5.0 * width / 8, 3.0 * height / 8, width / 8.0, 0, 2 * std::numbers::pi);
     cairo_arc_negative(cr, width / 2.0, height / 2.0, 3.0 * width / 8, 2 * std::numbers::pi, 0);
