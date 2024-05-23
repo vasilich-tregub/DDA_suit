@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glyphrunBC", "glyphrunBC\glyphrunBC.vcxproj", "{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "signed-distance", "signed-distance\signed-distance.vcxproj", "{42309DBC-C107-4F63-A820-6610021F400D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glyphrun-rendered", "glyphrun-rendered\glyphrun-rendered.vcxproj", "{948F6419-FECE-4345-B280-6C886E04F4AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,14 +15,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Debug|x64.ActiveCfg = Debug|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Debug|x64.Build.0 = Debug|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Debug|x86.ActiveCfg = Debug|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Debug|x86.Build.0 = Debug|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Release|x64.ActiveCfg = Release|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Release|x64.Build.0 = Release|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Release|x86.ActiveCfg = Release|x64
-		{A3FC5B8B-DD7F-429C-98E4-D37E3D4F23DF}.Release|x86.Build.0 = Release|x64
 		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x64.ActiveCfg = Debug|x64
 		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x64.Build.0 = Debug|x64
 		{42309DBC-C107-4F63-A820-6610021F400D}.Debug|x86.ActiveCfg = Debug|Win32
@@ -31,6 +23,14 @@ Global
 		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x64.Build.0 = Release|x64
 		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x86.ActiveCfg = Release|Win32
 		{42309DBC-C107-4F63-A820-6610021F400D}.Release|x86.Build.0 = Release|Win32
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Debug|x64.ActiveCfg = Debug|x64
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Debug|x64.Build.0 = Debug|x64
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Debug|x86.ActiveCfg = Debug|Win32
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Debug|x86.Build.0 = Debug|Win32
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Release|x64.ActiveCfg = Release|x64
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Release|x64.Build.0 = Release|x64
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Release|x86.ActiveCfg = Release|Win32
+		{948F6419-FECE-4345-B280-6C886E04F4AC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
