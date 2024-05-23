@@ -131,6 +131,9 @@
   <ItemGroup>
     <ClCompile Include="signed-distance.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="signed-distance.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

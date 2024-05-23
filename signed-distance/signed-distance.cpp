@@ -11,6 +11,7 @@
 #include <vector>
 #include <cairo/cairo.h>
 #include <numbers>
+#include "signed-distance.h"
 
 #include <Windows.h>
 #include <Gdiplus.h>
@@ -18,13 +19,8 @@
 
 int main()
 {
-    std::size_t width = 1000, height = 1000;
+    int width = 1000, height = 1000;
     std::vector<int> fld(width * height);
-    std::vector<int> fldneg(width * height);
-    std::vector<int>  coldistance(height);
-    std::vector<int>  coldistanceneg(height);
-    std::vector<int>  rowdistance(width);
-    std::vector<int>  rowdistanceneg(width);
 
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_A8, (int) width, (int) height);
     cairo_t* cr = cairo_create(surface);
@@ -34,7 +30,6 @@ int main()
         for (int X = 0; X < width; ++X)
         {
             fld[Y * width + X] = SHRT_MAX;
-            fldneg[Y * width + X] = SHRT_MAX;
         }
     }
 
@@ -45,142 +40,13 @@ int main()
 
     for (int ix = 0; ix < width * height; ++ix)
     {
-        if (cairo_image_surface_get_data(surface)[ix] == 0)
+        if (cairo_image_surface_get_data(surface)[ix] > 127)
         {
-            fld[ix] = 0;
-        }
-        if (cairo_image_surface_get_data(surface)[ix] != 0)
-        {
-            fldneg[ix] = 0;
+            fld[ix] = SHRT_MIN;
         }
     }
 
-    // vertical run: calculate vertical distances
-    for (int X = 0; X < width; ++X)
-    {
-        // store a copy of column of distances 
-        // because the next loop contains inner loop over the row index
-        // and can modify the column data
-        for (int Y = 0; Y < height; ++Y)
-        {
-            coldistance[Y] = fld[Y * width + X];
-            coldistanceneg[Y] = fldneg[Y * width + X];
-        }
-        int* v = new int[height];
-        int* vneg = new int[height];
-        double* z = new double[height + 1];
-        double* zneg = new double[height + 1];
-        int k = 0;
-        int kneg = 0;
-        v[0] = 0;
-        vneg[0] = 0;
-        z[0] = SHRT_MIN;
-        zneg[0] = SHRT_MIN;
-        z[1] = SHRT_MAX;
-        zneg[1] = SHRT_MAX;
-        for (int q = 1; q <= height - 1; q++)
-        {
-            double s = ((coldistance[q] + q * q) - (coldistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            while (s <= z[k]) {
-                k--;
-                s = ((coldistance[q] + q * q) - (coldistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            }
-            k++;
-            v[k] = q;
-            z[k] = s;
-            z[k + 1] = SHRT_MAX;
-            double sneg = ((coldistanceneg[q] + q * q) - (coldistanceneg[vneg[kneg]] + vneg[kneg] * vneg[kneg])) / (2 * q - 2 * vneg[kneg]);
-            while (sneg <= zneg[kneg]) {
-                kneg--;
-                sneg = ((coldistanceneg[q] + q * q) - (coldistanceneg[vneg[kneg]] + vneg[kneg] * vneg[kneg])) / (2 * q - 2 * vneg[kneg]);
-            }
-            kneg++;
-            vneg[kneg] = q;
-            zneg[kneg] = sneg;
-            zneg[kneg + 1] = SHRT_MAX;
-        }
-
-        k = 0;
-        kneg = 0;
-        for (int q = 0; q <= height - 1; q++)
-        {
-            while (z[k + 1] < q)
-                k++;
-            fld[q * width + X] = (q - v[k]) * (q - v[k]) + coldistance[v[k]];
-            while (zneg[kneg + 1] < q)
-                kneg++;
-            fldneg[q * width + X] = (q - vneg[kneg]) * (q - vneg[kneg]) + coldistanceneg[vneg[kneg]];
-        }
-
-        delete[] v;
-        delete[] z;
-        delete[] vneg;
-        delete[] zneg;
-    }
-
-    // horizontal run: process distances row-wise
-
-    for (int Y = 0; Y < height; ++Y)
-    {
-        // store a copy of row of distances 
-        // because the next loop contains inner loop over the column index
-        // and can modify the row data
-        for (int X = 0; X < width; ++X)
-        {
-            rowdistance[X] = fld[Y * width + X];
-            rowdistanceneg[X] = fldneg[Y * width + X];
-        }
-        int* v = new int[width];
-        int* vneg = new int[width];
-        double* z = new double[width + 1];
-        double* zneg = new double[width + 1];
-        int k = 0;
-        int kneg = 0;
-        v[0] = 0;
-        vneg[0] = 0;
-        z[0] = SHRT_MIN;
-        zneg[0] = SHRT_MIN;
-        z[1] = SHRT_MAX;
-        zneg[1] = SHRT_MAX;
-        for (int q = 1; q <= width - 1; q++)
-        {
-            double s = ((rowdistance[q] + q * q) - (rowdistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            while (s <= z[k]) {
-                k--;
-                s = ((rowdistance[q] + q * q) - (rowdistance[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
-            }
-            k++;
-            v[k] = q;
-            z[k] = s;
-            z[k + 1] = SHRT_MAX;
-            double sneg = ((rowdistanceneg[q] + q * q) - (rowdistanceneg[vneg[kneg]] + vneg[kneg] * vneg[kneg])) / (2 * q - 2 * vneg[kneg]);
-            while (sneg <= zneg[kneg]) {
-                kneg--;
-                sneg = ((rowdistanceneg[q] + q * q) - (rowdistanceneg[vneg[kneg]] + vneg[kneg] * vneg[kneg])) / (2 * q - 2 * vneg[kneg]);
-            }
-            kneg++;
-            vneg[kneg] = q;
-            zneg[kneg] = sneg;
-            zneg[kneg + 1] = SHRT_MAX;
-        }
-
-        k = 0;
-        kneg = 0;
-        for (int q = 0; q <= width - 1; q++)
-        {
-            while (z[k + 1] < q)
-                k++;
-            fld[Y * width + q] = (q - v[k]) * (q - v[k]) + rowdistance[v[k]];
-            while (zneg[kneg + 1] < q)
-                kneg++;
-            fldneg[Y * width + q] = (q - vneg[kneg]) * (q - vneg[kneg]) + rowdistanceneg[vneg[kneg]];
-        }
-
-        delete[] v;
-        delete[] z;
-        delete[] vneg;
-        delete[] zneg;
-    }
+    dt(width, height, fld);
 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -189,10 +55,10 @@ int main()
     BYTE* bytes = new BYTE[4 * static_cast<size_t>(cBuffer)];
     for (ULONG ix = 0; ix < cBuffer; ++ix)
     {
-        if (fld[ix] == 0)
+        if (fld[ix] < 0)
         {
-            bytes[4 * ix] = (BYTE)(255 - sqrt(fldneg[ix]) * 255 / width * 2);
-            bytes[4 * ix + 1] = (BYTE)(255 - sqrt(fldneg[ix]) * 255 / width * 2);
+            bytes[4 * ix] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
+            bytes[4 * ix + 1] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
             bytes[4 * ix + 2] = (BYTE)(0);
             bytes[4 * ix + 3] = (BYTE)(255);
         }
