@@ -8,6 +8,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <fontconfig/fontconfig.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -26,7 +28,7 @@
 #include "signed-distance.h"
 
 std::string textRun = u8"8.8.8";
-const std::string fontPath = "./ARIAL.TTF";
+const std::string fontName = "Verdana";
 const int fontSize = 72;
 
 int main()
@@ -61,7 +63,44 @@ int main()
 
     hb_buffer_guess_segment_properties(buf);
 
-    ft_error = FT_New_Face(library, fontPath.c_str(), 0, &face);
+    FcPattern* pat = FcPatternCreate();
+    if (!pat)
+    {
+        std::cout << "Cannot create the pattern.\n";
+        return -1;
+    }
+
+    // if there is no available default config file, the following line returns FcFalse and 
+    // prints a pesky 'Fontconfig error: Cannot load default config file: No such file: (null)'.
+    // Still, the program continues and runs successfully if no other critical errors happen 
+    // to arise
+    FcBool bconfigsubstitute = FcConfigSubstitute(0, pat, FcMatchPattern); 
+    FcDefaultSubstitute(pat);
+
+    pat = FcNameParse((FcChar8*)fontName.c_str());
+
+    FcResult result;
+    FcPattern* match = FcFontMatch(0, pat, &result);
+    if (!match)
+    {
+        std::cout << "No matching font string found.\n";
+        return -1;
+    }
+
+    FcChar8* fontfile = nullptr;
+    if (FcResultMatch != FcPatternGetString(match, FC_FILE, 0, &fontfile))
+    {
+        std::cout << "No matching font string found.\n";
+        return -1;
+    }
+
+    if ((ft_error = FT_New_Face(library, (char*)fontfile, 0, &face)) != 0)
+    {
+        std::cout << "FT_New_Face returns error code " << ft_error << "\n";
+        return -1;
+    }
+    FcPatternDestroy(pat);
+    FcPatternDestroy(match);
 
     ft_error = FT_Set_Pixel_Sizes(face, 0, fontSize);
     hb_font_t* hb_font = hb_ft_font_create(face, 0);
@@ -112,6 +151,10 @@ int main()
     }
 
     dt(width, height, fld);
+
+    // this rendering intentionally contrasts small-distance pixels near contours 
+    // by applying different colors to pos and neg pixels
+    // with adequate color effects, color transitions are smooth 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);

@@ -41,7 +41,18 @@ int main()
     }
 
     dt(width, height, fld);
-
+    // can be postprocessed to smooth distance map
+    /*std::vector<double> fdistance(ndots);
+    for (int Y = 1; Y < height - 1; ++Y)
+    {
+        for (int X = 1; X < width - 1; ++X)
+        {
+            fdistance[Y * width + X] = (distance[(Y - 1) * width + X - 1] + distance[(Y - 1) * width + X] + distance[(Y - 1) * width + X + 1] +
+                distance[Y * width + X - 1] + 8 * distance[Y * width + X] + distance[Y * width + X + 1] +
+                distance[(Y + 1) * width + X + 1] + distance[(Y + 1) * width + X] + distance[(Y + 1) * width + X + 1]) / 16.0;
+            //fdistance[Y * width + X] = distance[Y * width + X];
+        }
+    }*/
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
