@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 
+// => void dt(int width, int height, std::vector<int>& input; std::vector<int>& distance)
 void dt(int width, int height, std::vector<int>& distance)
 {
     assert(distance.size() >= width * height);         // pos, neg endings in variable names indicate variables used in pos/neg distance areas
@@ -147,7 +148,7 @@ void dt(int width, int height, std::vector<int>& distance)
         kpos = 0;
         kneg = 0;
         // the final loop: for v[k] < q we use unaltered row data
-        for (int q = 0; q <= width - 1; q++)
+        for (int q = 0; q < width; q++)
         {
             while (zpos[kpos + 1] < q)
                 kpos++;

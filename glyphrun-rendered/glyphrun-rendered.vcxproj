@@ -131,10 +131,6 @@
   <ItemGroup>
     <ClCompile Include="glyphrun-rendered.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="display.h" />
-    <ClInclude Include="signed-distance.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

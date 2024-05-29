@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <cairo/cairo.h>
 #include <numbers>
 #include "signed-distance.h"
@@ -19,7 +20,7 @@
 
 int main()
 {
-    int width = 1000, height = 1000;
+    int width = 100, height = 100;
     std::vector<int> fld(width * height);
 
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_A8, (int) width, (int) height);
@@ -41,18 +42,20 @@ int main()
     }
 
     dt(width, height, fld);
+    std::vector<double> fdistance(begin(fld), end(fld));
+    std::transform(begin(fdistance), end(fdistance), begin(fdistance), [](auto& value) {return sqrt(abs(value)); });
     // can be postprocessed to smooth distance map
-    /*std::vector<double> fdistance(ndots);
+    /*std::vector<double> smootheddistance(width * height);
     for (int Y = 1; Y < height - 1; ++Y)
     {
         for (int X = 1; X < width - 1; ++X)
         {
-            fdistance[Y * width + X] = (distance[(Y - 1) * width + X - 1] + distance[(Y - 1) * width + X] + distance[(Y - 1) * width + X + 1] +
-                distance[Y * width + X - 1] + 8 * distance[Y * width + X] + distance[Y * width + X + 1] +
-                distance[(Y + 1) * width + X + 1] + distance[(Y + 1) * width + X] + distance[(Y + 1) * width + X + 1]) / 16.0;
-            //fdistance[Y * width + X] = distance[Y * width + X];
+            smootheddistance[Y * width + X] = (fdistance[(Y - 1) * width + X - 1] + fdistance[(Y - 1) * width + X] + fdistance[(Y - 1) * width + X + 1] +
+                fdistance[Y * width + X - 1] + 8 * fdistance[Y * width + X] + fdistance[Y * width + X + 1] +
+                fdistance[(Y + 1) * width + X + 1] + fdistance[(Y + 1) * width + X] + fdistance[(Y + 1) * width + X + 1]) / 16.0;
         }
     }*/
+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
@@ -62,16 +65,16 @@ int main()
     {
         if (fld[ix] < 0)
         {
-            bytes[4 * ix] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
-            bytes[4 * ix + 1] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
+            bytes[4 * ix] = (BYTE)(255 - fdistance[ix] * 255 / width * 2);
+            bytes[4 * ix + 1] = (BYTE)(255 - fdistance[ix] * 255 / width * 2);
             bytes[4 * ix + 2] = (BYTE)(0);
             bytes[4 * ix + 3] = (BYTE)(255);
         }
         else
         {
-            bytes[4 * ix] = (BYTE)(255 - sqrt(fld[ix]) * 255 / width * 2);
+            bytes[4 * ix] = (BYTE)(255 - fdistance[ix] * 255 / width * 2);
             bytes[4 * ix + 1] = (BYTE)(0);
-            bytes[4 * ix + 2] = (BYTE)(255 - sqrt(fld[ix]) * 255 / width * 2);
+            bytes[4 * ix + 2] = (BYTE)(255 - fdistance[ix] * 255 / width * 2);
             bytes[4 * ix + 3] = (BYTE)(255);
         }
     }

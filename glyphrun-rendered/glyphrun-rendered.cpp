@@ -1,12 +1,11 @@
 // glyphrun-rendered.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// glyph stroke dilation implemented with cairo strokes; TODO: glyphrun stroke erosion
 
 #include <iostream>
 #include <vector>
-#include "display.h"
+#include <string>
+
 #include <cairo/cairo.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 #include <fontconfig/fontconfig.h>
 
@@ -25,28 +24,21 @@
 #include <pango-1.0/pango/pangocairo.h>
 #include <cairo/cairo-ft.h>
 
-#include "signed-distance.h"
-
-std::string textRun = u8"8.8.8";
 const std::string fontName = "Verdana";
-const int fontSize = 72;
+const int fontSize = 48;
+std::string dilation = "1.5";
 
 int main()
 {
-    int width = 320, height = 120;
-    std::vector<int> fld(width * height);
-
-    fld.assign(fld.size(), SHRT_MAX);
-
+    int width = 440, height = 120;
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_A8, width, height);
     cairo_t* cr = cairo_create(surface);
     //cairo_set_tolerance(cr, 0.5);
-    cairo_matrix_t matrix{ 1, 0, 0, 1, 0, 3 * height / 4 };
+    cairo_matrix_t matrix{ 1, 0, 0, 1, 0, 3.0 * height / 4 };
     cairo_transform(cr, &matrix);
 
-    hb_buffer_t* buf0 = hb_buffer_create();
-
-    hb_unicode_funcs_t* unicode = hb_buffer_get_unicode_funcs(buf0);
+    //hb_buffer_t* buf0 = hb_buffer_create();
+    //hb_unicode_funcs_t* unicode = hb_buffer_get_unicode_funcs(buf0);
 
     double textRunPos = 0;
 
@@ -54,6 +46,8 @@ int main()
 
     int ft_error = FT_Init_FreeType(&library);
     FT_Face face;
+
+    std::string textRun = u8"Dilate by " + dilation + " pxls";
 
     const char* text = reinterpret_cast<const char*>(textRun.data());
 
@@ -64,24 +58,47 @@ int main()
     hb_buffer_guess_segment_properties(buf);
 
     FcPattern* pat = FcPatternCreate();
+
     if (!pat)
     {
         std::cout << "Cannot create the pattern.\n";
         return -1;
     }
 
-    // if there is no available default config file, the following line returns FcFalse and 
-    // prints a pesky 'Fontconfig error: Cannot load default config file: No such file: (null)'.
-    // Still, the program continues and runs successfully if no other critical errors happen 
-    // to arise
-    FcBool bconfigsubstitute = FcConfigSubstitute(0, pat, FcMatchPattern); 
+    FcConfigSubstitute(0, pat, FcMatchPattern);
     FcDefaultSubstitute(pat);
 
-    pat = FcNameParse((FcChar8*)fontName.c_str());
+    FcFontSet* fs = FcFontSetCreate();
+
+    /* {
+        FcFontSet* font_patterns;
+        int	j;
+        font_patterns = FcFontSort(0, pat, all ? FcFalse : FcTrue, 0, &result);
+
+        if (!font_patterns || font_patterns->nfont == 0)
+        {
+            fputs("No fonts installed on the system\n", stderr);
+            return 1;
+        }
+        for (j = 0; j < font_patterns->nfont; j++)
+        {
+            FcPattern* font_pattern;
+
+            font_pattern = FcFontRenderPrepare(NULL, pat, font_patterns->fonts[j]);
+            if (font_pattern)
+                FcFontSetAdd(fs, font_pattern);
+        }
+
+        FcFontSetSortDestroy(font_patterns);
+    }*/
 
     FcResult result;
+    pat = FcNameParse((FcChar8*)fontName.c_str());
+
     FcPattern* match = FcFontMatch(0, pat, &result);
     if (!match)
+        /*FcFontSetAdd(fs, match);
+    else*/
     {
         std::cout << "No matching font string found.\n";
         return -1;
@@ -99,8 +116,8 @@ int main()
         std::cout << "FT_New_Face returns error code " << ft_error << "\n";
         return -1;
     }
+
     FcPatternDestroy(pat);
-    FcPatternDestroy(match);
 
     ft_error = FT_Set_Pixel_Sizes(face, 0, fontSize);
     hb_font_t* hb_font = hb_ft_font_create(face, 0);
@@ -127,8 +144,6 @@ int main()
 
     cairo_glyph_path(cr, crglyphs, glyph_count);
 
-    delete[] crglyphs;
-
     hb_font_destroy(hb_font);
 
     hb_buffer_destroy(buf);
@@ -136,57 +151,19 @@ int main()
     FT_Done_Face(face);
     FT_Done_FreeType(library);
 
-    //cairo_arc(cr, width / 2, height / 2, width / 4, 0, 2 * M_PI);
-
+    // draw unaltered glyphrun
     cairo_fill(cr);
-
     cairo_surface_write_to_png(surface, "glyphrun.png");
 
-    for (int ix = 0; ix < width * height; ++ix)
-    {
-        if (cairo_image_surface_get_data(surface)[ix] > 127)
-        {
-            fld[ix] = SHRT_MIN;
-        }
-    }
+    cairo_glyph_path(cr, crglyphs, glyph_count);
+    cairo_set_line_width(cr, 2 * std::stod(dilation));
+    cairo_stroke_preserve(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_fill(cr);
+    cairo_surface_write_to_png(surface, "glyphrun_dilated_stroke.png");
 
-    dt(width, height, fld);
-
-    // this rendering intentionally contrasts small-distance pixels near contours 
-    // by applying different colors to pos and neg pixels
-    // with adequate color effects, color transitions are smooth 
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-    size_t cBuffer = fld.size();
-    BYTE* bytes = new BYTE[4 * static_cast<size_t>(cBuffer)];
-    for (ULONG ix = 0; ix < cBuffer; ++ix)
-    {
-        if (fld[ix] < 0)
-        {
-            bytes[4 * ix] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
-            bytes[4 * ix + 1] = (BYTE)(255 - sqrt(-fld[ix]) * 255 / width * 2);
-            bytes[4 * ix + 2] = (BYTE)(0);
-            bytes[4 * ix + 3] = (BYTE)(255);
-        }
-        else
-        {
-            bytes[4 * ix] = (BYTE)(255 - sqrt(fld[ix]) * 255 / width * 2);
-            bytes[4 * ix + 1] = (BYTE)(0);
-            bytes[4 * ix + 2] = (BYTE)(255 - sqrt(fld[ix]) * 255 / width * 2);
-            bytes[4 * ix + 3] = (BYTE)(255);
-        }
-    }
-    Gdiplus::Image* bmp = new Gdiplus::Bitmap((INT)width, (INT)height);
-    Gdiplus::Graphics g(bmp);
-    //g.TranslateTransform(0.f, -120.f);
-    Gdiplus::Bitmap bitmap((INT)width, (INT)height, (INT)width * 4, PixelFormat32bppARGB, bytes);
-    g.DrawImage(&bitmap, 0, 0);
-    CLSID pngClsid;
-    (void)CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
-    bmp->Save(L"glyphrun-filled.png", &pngClsid, NULL);
+    delete[] crglyphs;
 
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
-
 }
