@@ -74,28 +74,6 @@ int main()
 
     FcFontSet* fs = FcFontSetCreate();
 
-    /* {
-        FcFontSet* font_patterns;
-        int	j;
-        font_patterns = FcFontSort(0, pat, all ? FcFalse : FcTrue, 0, &result);
-
-        if (!font_patterns || font_patterns->nfont == 0)
-        {
-            fputs("No fonts installed on the system\n", stderr);
-            return 1;
-        }
-        for (j = 0; j < font_patterns->nfont; j++)
-        {
-            FcPattern* font_pattern;
-
-            font_pattern = FcFontRenderPrepare(NULL, pat, font_patterns->fonts[j]);
-            if (font_pattern)
-                FcFontSetAdd(fs, font_pattern);
-        }
-
-        FcFontSetSortDestroy(font_patterns);
-    }*/
-
     FcResult result;
     pat = FcNameParse((FcChar8*)fontName.c_str());
     FcPatternAddInteger(pat, FC_SLANT, fontSlant);
@@ -162,6 +140,7 @@ int main()
     cairo_fill(cr);
     cairo_surface_write_to_png(surface, "glyphrun.png");
 
+    // draw glyphrun with dilated stroke
     cairo_glyph_path(cr, crglyphs, glyph_count);
     cairo_set_line_width(cr, 2 * std::stod(dilation));
     cairo_stroke_preserve(cr);
