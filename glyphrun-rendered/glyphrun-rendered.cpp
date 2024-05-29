@@ -26,11 +26,15 @@
 
 const std::string fontName = "Verdana";
 const int fontSize = 48;
+const int fontSlant = FC_SLANT_ITALIC;
+const int fontWeight = FC_WEIGHT_DEMIBOLD;
+const int fontWidth = FC_WIDTH_SEMIEXPANDED;
+
 std::string dilation = "1.5";
 
 int main()
 {
-    int width = 440, height = 120;
+    int width = 560, height = 120;
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_A8, width, height);
     cairo_t* cr = cairo_create(surface);
     //cairo_set_tolerance(cr, 0.5);
@@ -47,7 +51,7 @@ int main()
     int ft_error = FT_Init_FreeType(&library);
     FT_Face face;
 
-    std::string textRun = u8"Dilate by " + dilation + " pxls";
+    std::string textRun = u8"Dilated by " + dilation + " pixels";
 
     const char* text = reinterpret_cast<const char*>(textRun.data());
 
@@ -94,6 +98,9 @@ int main()
 
     FcResult result;
     pat = FcNameParse((FcChar8*)fontName.c_str());
+    FcPatternAddInteger(pat, FC_SLANT, fontSlant);
+    FcPatternAddInteger(pat, FC_WEIGHT, fontWeight);
+    FcPatternAddInteger(pat, FC_WIDTH, fontWidth);
 
     FcPattern* match = FcFontMatch(0, pat, &result);
     if (!match)
